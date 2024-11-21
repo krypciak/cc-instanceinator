@@ -17,32 +17,60 @@ export default class CCSession implements PluginClass {
     copy!: Session
 
     async prestart() {
+        sc.TitleScreenGui.inject({
+            init(...args) {
+                this.parent(...args)
+                if (true) {
+                    this.introGui.timeLine = [{ time: 0, end: true }]
+                    // @ts-expect-error
+                    this.bgGui.parallax.addLoadListener({
+                        onLoadableComplete: () => {
+                            let { timeLine } = this.bgGui
+                            // @ts-expect-error
+                            let idx = timeLine.findIndex(item => item.time > 0)
+                            if (idx < 0) idx = timeLine.length
+                            timeLine.splice(idx, 0, { time: 0, goto: 'INTRO_SKIP_NOSOUND' })
+                        },
+                    })
+                    this.removeChildGui(this.startGui)
+                    // @ts-expect-error
+                    this.startGui = {
+                        show: () => {
+                            ig.interact.removeEntry(this.screenInteract)
+                            this.buttons.show()
+                        },
+                        hide: () => {},
+                    }
+                }
+            },
+        })
+
         ig.System.inject({
             run() {
                 if (!ig.system.delegate) return
                 this.parent()
             },
         })
-        // let counter = 0
-        // const self = this
-        // ig.System.inject({
-        //     run() {
-        //         if (self.ref) {
-        //             counter++
-        //             if (counter % 1000 == 0) {
-        //                 if (sessionId == 0) {
-        //                     // console.log('copy')
-        //                     self.copy.apply()
-        //                 } else {
-        //                     // console.log('ref')
-        //                     // self.ref.apply()
-        //                 }
-        //             }
-        //         }
-        //
-        //         this.parent()
-        //     },
-        // })
+        let counter = 0
+        const self = this
+        ig.System.inject({
+            run() {
+                if (self.ref && self.copy) {
+                    counter++
+                    if (counter % 8 == 0) {
+                        if (sessionId == 0) {
+                            console.log('copy')
+                            self.copy.apply()
+                        } else {
+                            console.log('ref')
+                            self.ref.apply()
+                        }
+                    }
+                }
+
+                this.parent()
+            },
+        })
     }
 
     async poststart() {
@@ -146,7 +174,6 @@ class Session {
 
         const canvasId = 'canvas1'
         const gameId = 'game1'
-        // document.body.insertAdjacentHTML('beforeend', `<div id="${gameId}" > <canvas id="${canvasId} style="position:absolute;" style="z-index:100000"></canvas> </div>`)
 
         const divE = document.createElement('div')
         divE.id = gameId
@@ -254,7 +281,16 @@ class Session {
         //
 
         ig.ready = true
-        ig.mainLoader = new sc.StartLoader(sc.CrossCode)
+        ig.mainLoader = new sc.StartLoader(
+            sc.CrossCode.extend({
+                init() {
+                    this.parent()
+                    this.events = new ig.EventManager()
+                    this.renderer = new ig.Renderer2d()
+                    this.physics = new ig.Physics()
+                },
+            })
+        )
         ig.mainLoader.load()
 
         await new Promise<void>(res => {
