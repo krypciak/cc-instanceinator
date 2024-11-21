@@ -1,0 +1,16 @@
+{
+    "id": "cc-session",
+    "version": "0.0.1",
+    "title": "Session",
+    "description": "No way",
+    "repository": "",
+    "tags": [],
+    "authors": ["krypek"],
+    "icons": {
+        "24": "icon/icon.png"
+    },
+    "dependencies": {
+        "crosscode": ">=1.4.0"
+    },
+    "plugin": "plugin.js"
+}
