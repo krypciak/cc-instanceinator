@@ -2,19 +2,23 @@ import { PluginClass } from 'ultimate-crosscode-typedefs/modloader/mod'
 import type {} from 'crossnode/crossnode.d.ts'
 import { Mod1 } from './types'
 
-export default class CCSession implements PluginClass {
+declare global {
+    var inst: {}
+}
+
+export default class CCInstanceinator implements PluginClass {
     static dir: string
     static mod: Mod1
 
     constructor(mod: Mod1) {
-        CCSession.dir = mod.baseDirectory
-        CCSession.mod = mod
-        CCSession.mod.isCCL3 = mod.findAllAssets ? true : false
-        CCSession.mod.isCCModPacked = mod.baseDirectory.endsWith('.ccmod/')
+        CCInstanceinator.dir = mod.baseDirectory
+        CCInstanceinator.mod = mod
+        CCInstanceinator.mod.isCCL3 = mod.findAllAssets ? true : false
+        CCInstanceinator.mod.isCCModPacked = mod.baseDirectory.endsWith('.ccmod/')
     }
 
-    ref!: Session
-    copy!: Session
+    ref!: Instance
+    copy!: Instance
 
     async prestart() {
         sc.TitleScreenGui.inject({
@@ -45,12 +49,12 @@ export default class CCSession implements PluginClass {
             },
         })
 
-        ig.System.inject({
-            run() {
-                if (!ig.system.delegate) return
-                this.parent()
-            },
-        })
+        // ig.System.inject({
+        //     run() {
+        //         if (!ig.system.delegate) return
+        //         this.parent()
+        //     },
+        // })
         let counter = 0
         const self = this
         ig.System.inject({
@@ -58,7 +62,7 @@ export default class CCSession implements PluginClass {
                 if (self.ref && self.copy) {
                     counter++
                     if (counter % 8 == 0) {
-                        if (sessionId == 0) {
+                        if (instanceId == 0) {
                             console.log('copy')
                             self.copy.apply()
                         } else {
@@ -74,26 +78,26 @@ export default class CCSession implements PluginClass {
     }
 
     async poststart() {
-        this.ref = Session.currentReference()
+        this.ref = Instance.currentReference()
 
-        this.copy = await Session.copy(this.ref)
+        this.copy = await Instance.copy(this.ref)
         this.copy.apply()
     }
 }
 
 declare global {
-    var sessionId: number
+    var instanceId: number
 }
 
 type SetFunc = (name: string, to?: any) => void
-class Session {
-    private static sessionIdCounter = 0
+class Instance {
+    private static instanceIdCounter = 0
 
-    static currentReference(): Session {
-        return new Session(ig, sc)
+    static currentReference(): Instance {
+        return new Instance(ig, sc)
     }
 
-    static async copy(s: Session): Promise<Session> {
+    static async copy(s: Instance): Promise<Instance> {
         const ig: any = {}
         const igToInit: string[] = []
         for (const key in s.ig) {
@@ -169,7 +173,7 @@ class Session {
         scset('skilltree')
         scset('version')
 
-        const ns = new Session(ig, sc)
+        const ns = new Instance(ig, sc)
         ns.apply()
 
         const canvasId = 'canvas1'
@@ -312,8 +316,8 @@ class Session {
         public ig: typeof window.ig,
         public sc: typeof window.sc
     ) {
-        this.id = Session.sessionIdCounter
-        Session.sessionIdCounter++
+        this.id = Instance.instanceIdCounter
+        Instance.instanceIdCounter++
     }
 
     apply() {
@@ -322,6 +326,6 @@ class Session {
         // @ts-expect-error
         global.sc = window.sc = this.sc
         // @ts-expect-error
-        global.sessionId = window.sessionId = this.id
+        global.instanceId = window.instanceId = this.id
     }
 }
