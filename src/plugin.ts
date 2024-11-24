@@ -13,12 +13,15 @@ export default class CCInstanceinator implements PluginClass {
         System: ig.SystemConstructor
         CrossCode: sc.CrossCodeConstructor
     }
+    Instance: typeof Instance
 
     constructor(mod: Mod1) {
         CCInstanceinator.dir = mod.baseDirectory
         CCInstanceinator.mod = mod
         CCInstanceinator.mod.isCCL3 = mod.findAllAssets ? true : false
         CCInstanceinator.mod.isCCModPacked = mod.baseDirectory.endsWith('.ccmod/')
+
+        this.Instance = Instance
 
         global.inst = window.inst = this
     }
@@ -106,10 +109,10 @@ export default class CCInstanceinator implements PluginClass {
         let counter = 0
         ig.System.inject({
             run() {
+                // if (Object.keys(inst.instances).length <= 1) return this.parent()
                 const instances = Object.values(inst.instances).sort((a, b) => a.id - b.id)
-                if (instances.length == 0) return this.parent()
 
-                if (instances.length == 6) {
+                if (instances.length > 0) {
                     counter++
                     let nextInst = instances[instances.findIndex(a => a.id == inst.instanceId) + 1]
                     if (!nextInst) nextInst = instances[0]
@@ -119,37 +122,41 @@ export default class CCInstanceinator implements PluginClass {
 
                 this.parent()
             },
-            setCanvasSize(width, height, hideBorder) {
-                this.parent(width, height, hideBorder)
+        })
+
+        ig.System.inject({
+            setCanvasSize(_width, _height, _hideBorder) {
+                // if (Object.keys(inst.instances).length <= 1) return this.parent(width, height, hideBorder)
                 this.canvas.style.width = '100%'
                 this.canvas.style.height = '100%'
+                this.canvas.className = 'borderHidden'
             },
         })
-        sc.OptionModel.inject({
-            _setDisplaySize(call = false) {
-                this.parent()
 
-                if (call) return
+        sc.OptionModel.inject({
+            _setDisplaySize(schedule = true) {
+                if (Object.keys(inst.instances).length <= 1) return this.parent()
+
+                if (!schedule) return this.parent()
+
                 for (const instId of Object.keys(inst.instances).map(Number)) {
-                    if (instId == inst.instanceId) continue
                     const instance = inst.instances[instId]
                     instance.ig.game.scheduledTasks.push(() => {
-                        sc.options?._setDisplaySize(true)
+                        sc.options?._setDisplaySize(false)
                     })
                 }
 
-                const divs = Object.values(inst.instances).map(i => i.ig.system.inputDom)
+                const insts = Object.values(inst.instances).sort((a, b) => a.id - b.id)
 
+                const ws = document.body.clientWidth
+                const hs = document.body.clientHeight
                 function fitRectangles() {
-                    const ws = document.body.clientWidth
-                    const hs = document.body.clientHeight
-
                     let bestWi = 0
                     let bestGrid = [0, 0]
 
                     const aspectRatioRev = 320 / 568
-                    for (let nx = 1; nx <= Math.ceil(Math.sqrt(divs.length)) + 1; nx++) {
-                        const ny = Math.ceil(divs.length / nx)
+                    for (let nx = 1; nx <= Math.ceil(insts.length); nx++) {
+                        const ny = Math.ceil(insts.length / nx)
                         const wi = Math.min(ws / nx, hs / ny / aspectRatioRev)
 
                         if (wi > bestWi) {
@@ -160,26 +167,42 @@ export default class CCInstanceinator implements PluginClass {
 
                     return {
                         grid: bestGrid,
-                        width: bestWi,
-                        height: aspectRatioRev * bestWi,
+                        width: Math.floor(bestWi),
+                        height: Math.floor(aspectRatioRev * bestWi),
                     }
                 }
 
                 const { grid, width, height } = fitRectangles()
+                const offsetX = (ws - grid[0] * width) / 2
+                const offsetY = (hs - grid[1] * height) / 2
 
                 let itemI = 0
                 for (let column = 0; column < grid[1]; column++) {
                     for (let row = 0; row < grid[0]; row++) {
-                        const item = divs[itemI]
-                        if (!item) break
+                        const instance = insts[itemI]
+                        if (!instance) break
+                        const item = instance.ig.system.inputDom
                         item.style.position = 'absolute'
-                        item.style.top = `${column * height}px`
-                        item.style.left = `${row * width}px`
+                        item.style.left = `${row * width + offsetX}px`
+                        item.style.top = `${column * height + offsetY}px`
                         item.style.width = `${width}px`
                         item.style.height = `${height}px`
 
+                        instance.ig.system.screenWidth = width
+                        instance.ig.system.screenHeight = height
+
                         itemI++
                     }
+                }
+            },
+        })
+        ig.Input.inject({
+            init() {
+                this.instanceId = inst.instanceId
+            },
+            mousemove(event) {
+                if (this.instanceId == inst.instanceId) {
+                    this.parent(event)
                 }
             },
         })
@@ -210,10 +233,13 @@ declare global {
         interface Game {
             scheduledTasks: (() => void)[]
         }
+        interface Input {
+            instanceId: number
+        }
     }
     namespace sc {
         interface OptionModel {
-            _setDisplaySize(call?: boolean): void
+            _setDisplaySize(schedule?: boolean): void
         }
     }
 }
