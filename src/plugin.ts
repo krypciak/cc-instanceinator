@@ -2,25 +2,42 @@ import { PluginClass } from 'ultimate-crosscode-typedefs/modloader/mod'
 import type {} from 'crossnode/crossnode.d.ts'
 import { Mod1 } from './types'
 
-declare global {
-    var inst: {}
-}
-
 export default class CCInstanceinator implements PluginClass {
     static dir: string
     static mod: Mod1
+
+    instanceId: number = 0
+    instances: Record<number, Instance> = {}
+
+    classes!: {
+        System: ig.SystemConstructor
+        CrossCode: sc.CrossCodeConstructor
+    }
 
     constructor(mod: Mod1) {
         CCInstanceinator.dir = mod.baseDirectory
         CCInstanceinator.mod = mod
         CCInstanceinator.mod.isCCL3 = mod.findAllAssets ? true : false
         CCInstanceinator.mod.isCCModPacked = mod.baseDirectory.endsWith('.ccmod/')
+
+        global.inst = window.inst = this
     }
 
-    ref!: Instance
-    copy!: Instance
-
     async prestart() {
+        this.classes = {
+            System: ig.System.extend({
+                startRunLoop() {},
+            }),
+            CrossCode: sc.CrossCode.extend({
+                init() {
+                    this.parent()
+                    this.events = new ig.EventManager()
+                    this.renderer = new ig.Renderer2d()
+                    this.physics = new ig.Physics()
+                },
+            }),
+        }
+
         sc.TitleScreenGui.inject({
             init(...args) {
                 this.parent(...args)
@@ -49,48 +66,160 @@ export default class CCInstanceinator implements PluginClass {
             },
         })
 
-        // ig.System.inject({
-        //     run() {
-        //         if (!ig.system.delegate) return
-        //         this.parent()
-        //     },
-        // })
+        sc.StartLoader.inject({
+            draw() {
+                if (ig.ready) {
+                    clearInterval(this._intervalId)
+                } else {
+                    this.parent()
+                }
+            },
+        })
+
+        ig.Game.inject({
+            init() {
+                this.scheduledTasks = []
+                this.parent()
+            },
+            run() {
+                for (const task of this.scheduledTasks) task()
+                this.scheduledTasks = []
+
+                this.parent()
+            },
+        })
+        ig.Loader.inject({
+            init(gameClass) {
+                this.parent(gameClass)
+                this.instanceId = inst.instanceId
+            },
+            finalize() {
+                if (this.instanceId != inst.instanceId) {
+                    inst.instances[this.instanceId].ig.game.scheduledTasks.push(() => {
+                        this.finalize()
+                    })
+                } else {
+                    this.parent()
+                }
+            },
+        })
         let counter = 0
-        const self = this
         ig.System.inject({
             run() {
-                if (self.ref && self.copy) {
+                const instances = Object.values(inst.instances).sort((a, b) => a.id - b.id)
+                if (instances.length == 0) return this.parent()
+
+                if (instances.length == 6) {
                     counter++
-                    if (counter % 8 == 0) {
-                        if (instanceId == 0) {
-                            console.log('copy')
-                            self.copy.apply()
-                        } else {
-                            console.log('ref')
-                            self.ref.apply()
-                        }
-                    }
+                    let nextInst = instances[instances.findIndex(a => a.id == inst.instanceId) + 1]
+                    if (!nextInst) nextInst = instances[0]
+
+                    nextInst.apply()
                 }
 
                 this.parent()
+            },
+            setCanvasSize(width, height, hideBorder) {
+                this.parent(width, height, hideBorder)
+                this.canvas.style.width = '100%'
+                this.canvas.style.height = '100%'
+            },
+        })
+        sc.OptionModel.inject({
+            _setDisplaySize(call = false) {
+                this.parent()
+
+                if (call) return
+                for (const instId of Object.keys(inst.instances).map(Number)) {
+                    if (instId == inst.instanceId) continue
+                    const instance = inst.instances[instId]
+                    instance.ig.game.scheduledTasks.push(() => {
+                        sc.options?._setDisplaySize(true)
+                    })
+                }
+
+                const divs = Object.values(inst.instances).map(i => i.ig.system.inputDom)
+
+                function fitRectangles() {
+                    const ws = document.body.clientWidth
+                    const hs = document.body.clientHeight
+
+                    let bestWi = 0
+                    let bestGrid = [0, 0]
+
+                    const aspectRatioRev = 320 / 568
+                    for (let nx = 1; nx <= Math.ceil(Math.sqrt(divs.length)) + 1; nx++) {
+                        const ny = Math.ceil(divs.length / nx)
+                        const wi = Math.min(ws / nx, hs / ny / aspectRatioRev)
+
+                        if (wi > bestWi) {
+                            bestWi = wi
+                            bestGrid = [nx, ny]
+                        }
+                    }
+
+                    return {
+                        grid: bestGrid,
+                        width: bestWi,
+                        height: aspectRatioRev * bestWi,
+                    }
+                }
+
+                const { grid, width, height } = fitRectangles()
+
+                let itemI = 0
+                for (let column = 0; column < grid[1]; column++) {
+                    for (let row = 0; row < grid[0]; row++) {
+                        const item = divs[itemI]
+                        if (!item) break
+                        item.style.position = 'absolute'
+                        item.style.top = `${column * height}px`
+                        item.style.left = `${row * width}px`
+                        item.style.width = `${width}px`
+                        item.style.height = `${height}px`
+
+                        itemI++
+                    }
+                }
             },
         })
     }
 
     async poststart() {
-        this.ref = Instance.currentReference()
+        this.instances[0] = Instance.currentReference()
 
-        this.copy = await Instance.copy(this.ref)
-        this.copy.apply()
+        for (let i = 1; i < 6; i++) {
+            this.instances[i] = await Instance.copy(this.instances[0])
+            this.instances[i].apply()
+        }
     }
 }
 
 declare global {
-    var instanceId: number
+    var inst: CCInstanceinator
+    namespace NodeJS {
+        interface Global {
+            inst: CCInstanceinator
+        }
+    }
+
+    namespace ig {
+        interface Loader {
+            instanceId: number
+        }
+        interface Game {
+            scheduledTasks: (() => void)[]
+        }
+    }
+    namespace sc {
+        interface OptionModel {
+            _setDisplaySize(call?: boolean): void
+        }
+    }
 }
 
 type SetFunc = (name: string, to?: any) => void
-class Instance {
+export class Instance {
     private static instanceIdCounter = 0
 
     static currentReference(): Instance {
@@ -176,23 +305,14 @@ class Instance {
         const ns = new Instance(ig, sc)
         ns.apply()
 
-        const canvasId = 'canvas1'
-        const gameId = 'game1'
+        const canvasId = `canvas${ns.id}`
+        const gameId = `game${ns.id}`
 
         const divE = document.createElement('div')
         divE.id = gameId
 
         const canvasE = document.createElement('canvas')
         canvasE.id = canvasId
-        canvasE.style.position = 'absolute'
-        canvasE.style.top = '700'
-        canvasE.style.width = '1280'
-        canvasE.style.height = '707'
-
-        document.getElementById('game')!.style.position = 'absolute'
-        document.getElementById('game')!.style.top = '0'
-        document.getElementById('game')!.style.width = '1280'
-        document.getElementById('game')!.style.height = '707'
 
         divE.appendChild(canvasE)
 
@@ -200,7 +320,7 @@ class Instance {
 
         igset(
             'system',
-            new ig.System(
+            new inst.classes.System(
                 '#' + canvasId,
                 '#' + gameId,
                 s.ig.system.fps,
@@ -285,16 +405,7 @@ class Instance {
         //
 
         ig.ready = true
-        ig.mainLoader = new sc.StartLoader(
-            sc.CrossCode.extend({
-                init() {
-                    this.parent()
-                    this.events = new ig.EventManager()
-                    this.renderer = new ig.Renderer2d()
-                    this.physics = new ig.Physics()
-                },
-            })
-        )
+        ig.mainLoader = new sc.StartLoader(inst.classes.CrossCode)
         ig.mainLoader.load()
 
         await new Promise<void>(res => {
@@ -325,7 +436,6 @@ class Instance {
         global.ig = window.ig = this.ig
         // @ts-expect-error
         global.sc = window.sc = this.sc
-        // @ts-expect-error
-        global.instanceId = window.instanceId = this.id
+        inst.instanceId = this.id
     }
 }
