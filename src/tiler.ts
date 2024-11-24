@@ -7,8 +7,8 @@ declare global {
 }
 export function injectTiling() {
     ig.System.inject({
-        setCanvasSize(_width, _height, _hideBorder) {
-            // if (Object.keys(inst.instances).length <= 1) return this.parent(width, height, hideBorder)
+        setCanvasSize(width, height, hideBorder) {
+            if (Object.keys(inst.instances).length <= 1) return this.parent(width, height, hideBorder)
             this.canvas.style.width = '100%'
             this.canvas.style.height = '100%'
             this.canvas.className = 'borderHidden'

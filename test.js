@@ -6,8 +6,8 @@ startCrossnode({
     ccloader2: true,
     nukeImageStack: true,
     
-    modWhitelist: ['cc-session'],
+    modWhitelist: ['cc-instanceinator'],
     extensionWhitelist: [],
-    modTestWhitelist: ['cc-session'],
+    modTestWhitelist: ['cc-instanceinator'],
 })
 

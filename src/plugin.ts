@@ -1,7 +1,7 @@
 import { PluginClass } from 'ultimate-crosscode-typedefs/modloader/mod'
 import type {} from 'crossnode/crossnode.d.ts'
 import { Mod1 } from './types'
-import { Instance } from './instance'
+import { injectInstance, Instance } from './instance'
 import { injectTiling } from './tiler'
 
 export default class CCInstanceinator implements PluginClass {
@@ -89,13 +89,14 @@ export default class CCInstanceinator implements PluginClass {
             },
         })
 
+        injectInstance()
         injectTiling()
     }
 
     async poststart() {
         this.instances[0] = Instance.currentReference()
 
-        for (let i = 1; i < 6; i++) {
+        for (let i = 1; i < 1; i++) {
             this.instances[i] = await Instance.copy(this.instances[0])
             this.instances[i].apply()
         }
