@@ -6,7 +6,7 @@ declare global {
     }
 }
 
-function getDisplayInstances() {
+export function getDisplayInstances() {
     return Object.values(inst.instances).filter(i => i.display)
 }
 

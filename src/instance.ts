@@ -1,6 +1,14 @@
+import { getDisplayInstances } from './tiler'
+
 type SetFunc = (name: string, to?: any) => void
 export class Instance {
     private static instanceIdCounter = 0
+
+    public static resetInstanceIdCounter() {
+        if (Object.keys(inst.instances).length != 0)
+            throw new Error('inst.instances need to be empty when calling resetInstanceIdCounter!')
+        this.instanceIdCounter = 0
+    }
 
     static currentReference(name?: string, display?: boolean): Instance {
         return new Instance(ig, sc, name, display)
@@ -202,7 +210,7 @@ export class Instance {
             }, 100)
         })
 
-        // s.apply()
+        s.apply()
         return ns
     }
 
@@ -264,7 +272,7 @@ export function injectInstance() {
         },
         draw() {
             this.parent()
-            if (!Instance.displayInstanceId) return
+            if (!Instance.displayInstanceId || getDisplayInstances().length <= 1) return
             const text = new ig.TextBlock(
                 sc.fontsystem.font,
                 `#${inst.instanceId} ${inst.instances[inst.instanceId]?.name ?? 'initializing...'}`,

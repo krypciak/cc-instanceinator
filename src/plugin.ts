@@ -22,6 +22,7 @@ export default class CCInstanceinator implements PluginClass {
         CCInstanceinator.mod = mod
         CCInstanceinator.mod.isCCL3 = mod.findAllAssets ? true : false
         CCInstanceinator.mod.isCCModPacked = mod.baseDirectory.endsWith('.ccmod/')
+        if (!CCInstanceinator.mod.isCCL3) Object.assign(mod, { id: CCInstanceinator.mod.name })
 
         this.Instance = Instance
 
@@ -43,39 +44,44 @@ export default class CCInstanceinator implements PluginClass {
             }),
         }
 
-        let counter = 0
-        ig.System.inject({
-            run() {
-                const instances = Object.values(inst.instances).sort((a, b) => a.id - b.id)
-
-                if (instances.length > 0) {
-                    counter++
-                    let nextInst = instances[instances.findIndex(a => a.id == inst.instanceId) + 1]
-                    if (!nextInst) nextInst = instances[0]
-
-                    nextInst.apply()
-                }
-
-                this.parent()
-            },
-        })
-
+        // ig.System.inject({
+        //     run() {
+        //         const instances = Object.values(inst.instances).sort((a, b) => a.id - b.id)
+        //         if (instances.length <= 1) return this.parent()
+        //
+        //         if (instances.length == 6) {
+        //             let nextInst = instances[instances.findIndex(a => a.id == inst.instanceId) + 1]
+        //             if (!nextInst) nextInst = instances[0]
+        //
+        //             nextInst.apply()
+        //         }
+        //
+        //         this.parent()
+        //     },
+        // })
         injectInstance()
         injectTiling()
-    }
-
-    async poststart() {
-        this.instances[0] = Instance.currentReference('master')
-
-        for (let i = 1; i < 6; i++) {
-            const instance = await Instance.copy(this.instances[0], 'child')
-            this.append(instance)
-            instance.apply()
+        if (window.crossnode?.options.test) {
+            import('./tests')
         }
     }
 
+    // async poststart() {
+    //     this.instances[0] = Instance.currentReference('master')
+    //
+    //     for (let i = 1; i < 6; i++) {
+    //         const instance = await Instance.copy(this.instances[0], 'child')
+    //         this.append(instance)
+    //         instance.apply()
+    //     }
+    // }
+
     append(instance: Instance) {
         this.instances[instance.id] = instance
+    }
+
+    delete(instance: Instance) {
+        delete this.instances[instance.id]
     }
 }
 
