@@ -65,10 +65,10 @@ export default class CCInstanceinator implements PluginClass {
     }
 
     async poststart() {
-        this.instances[0] = Instance.currentReference()
+        this.instances[0] = Instance.currentReference('master')
 
-        for (let i = 1; i < 2; i++) {
-            const instance = await Instance.copy(this.instances[0], false)
+        for (let i = 1; i < 6; i++) {
+            const instance = await Instance.copy(this.instances[0], 'child')
             this.append(instance)
             instance.apply()
         }

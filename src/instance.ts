@@ -2,11 +2,13 @@ type SetFunc = (name: string, to?: any) => void
 export class Instance {
     private static instanceIdCounter = 0
 
-    static currentReference(display?: boolean): Instance {
-        return new Instance(ig, sc, display)
+    static currentReference(name?: string, display?: boolean): Instance {
+        return new Instance(ig, sc, name, display)
     }
 
-    static async copy(s: Instance, display?: boolean): Promise<Instance> {
+    public static displayInstanceId: boolean = true
+
+    static async copy(s: Instance, name?: string, display?: boolean): Promise<Instance> {
         const ig: any = {}
         const igToInit: string[] = []
         for (const key in s.ig) {
@@ -82,7 +84,7 @@ export class Instance {
         scset('skilltree')
         scset('version')
 
-        const ns = new Instance(ig, sc, display)
+        const ns = new Instance(ig, sc, name, display)
         ns.apply()
 
         const canvasId = `canvas${ns.id}`
@@ -209,6 +211,7 @@ export class Instance {
     private constructor(
         public ig: typeof window.ig,
         public sc: typeof window.sc,
+        public name: string = 'default',
         public display: boolean = true
     ) {
         this.id = Instance.instanceIdCounter
@@ -258,6 +261,16 @@ export function injectInstance() {
             this.scheduledTasks = []
 
             this.parent()
+        },
+        draw() {
+            this.parent()
+            if (!Instance.displayInstanceId) return
+            const text = new ig.TextBlock(
+                sc.fontsystem.font,
+                `#${inst.instanceId} ${inst.instances[inst.instanceId]?.name ?? 'initializing...'}`,
+                {}
+            )
+            text.draw(2, 0)
         },
     })
 
