@@ -2,11 +2,11 @@ type SetFunc = (name: string, to?: any) => void
 export class Instance {
     private static instanceIdCounter = 0
 
-    static currentReference(): Instance {
-        return new Instance(ig, sc)
+    static currentReference(display?: boolean): Instance {
+        return new Instance(ig, sc, display)
     }
 
-    static async copy(s: Instance): Promise<Instance> {
+    static async copy(s: Instance, display?: boolean): Promise<Instance> {
         const ig: any = {}
         const igToInit: string[] = []
         for (const key in s.ig) {
@@ -82,7 +82,7 @@ export class Instance {
         scset('skilltree')
         scset('version')
 
-        const ns = new Instance(ig, sc)
+        const ns = new Instance(ig, sc, display)
         ns.apply()
 
         const canvasId = `canvas${ns.id}`
@@ -97,6 +97,9 @@ export class Instance {
         divE.appendChild(canvasE)
 
         document.body.appendChild(divE)
+        if (!ns.display) {
+            divE.style.display = 'none'
+        }
 
         igset(
             'system',
@@ -205,7 +208,8 @@ export class Instance {
 
     private constructor(
         public ig: typeof window.ig,
-        public sc: typeof window.sc
+        public sc: typeof window.sc,
+        public display: boolean = true
     ) {
         this.id = Instance.instanceIdCounter
         Instance.instanceIdCounter++

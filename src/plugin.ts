@@ -74,7 +74,6 @@ export default class CCInstanceinator implements PluginClass {
         let counter = 0
         ig.System.inject({
             run() {
-                // if (Object.keys(inst.instances).length <= 1) return this.parent()
                 const instances = Object.values(inst.instances).sort((a, b) => a.id - b.id)
 
                 if (instances.length > 0) {
@@ -96,10 +95,15 @@ export default class CCInstanceinator implements PluginClass {
     async poststart() {
         this.instances[0] = Instance.currentReference()
 
-        for (let i = 1; i < 1; i++) {
-            this.instances[i] = await Instance.copy(this.instances[0])
-            this.instances[i].apply()
+        for (let i = 1; i < 2; i++) {
+            const instance = await Instance.copy(this.instances[0], false)
+            this.append(instance)
+            instance.apply()
         }
+    }
+
+    append(instance: Instance) {
+        this.instances[instance.id] = instance
     }
 }
 

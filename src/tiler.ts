@@ -5,10 +5,15 @@ declare global {
         }
     }
 }
+
+function getDisplayInstances() {
+    return Object.values(inst.instances).filter(i => i.display)
+}
+
 export function injectTiling() {
     ig.System.inject({
         setCanvasSize(width, height, hideBorder) {
-            if (Object.keys(inst.instances).length <= 1) return this.parent(width, height, hideBorder)
+            if (getDisplayInstances().length <= 1) return this.parent(width, height, hideBorder)
             this.canvas.style.width = '100%'
             this.canvas.style.height = '100%'
             this.canvas.className = 'borderHidden'
@@ -17,18 +22,16 @@ export function injectTiling() {
 
     sc.OptionModel.inject({
         _setDisplaySize(schedule = true) {
-            if (Object.keys(inst.instances).length <= 1) return this.parent()
+            const instances = getDisplayInstances().sort((a, b) => a.id - b.id)
+            if (instances.length <= 1) return this.parent()
 
             if (!schedule) return this.parent()
 
-            for (const instId of Object.keys(inst.instances).map(Number)) {
-                const instance = inst.instances[instId]
+            for (const instance of instances) {
                 instance.ig.game.scheduledTasks.push(() => {
                     sc.options?._setDisplaySize(false)
                 })
             }
-
-            const insts = Object.values(inst.instances).sort((a, b) => a.id - b.id)
 
             const ws = document.body.clientWidth
             const hs = document.body.clientHeight
@@ -37,8 +40,8 @@ export function injectTiling() {
                 let bestGrid = [0, 0]
 
                 const aspectRatioRev = 320 / 568
-                for (let nx = 1; nx <= Math.ceil(insts.length); nx++) {
-                    const ny = Math.ceil(insts.length / nx)
+                for (let nx = 1; nx <= Math.ceil(instances.length); nx++) {
+                    const ny = Math.ceil(instances.length / nx)
                     const wi = Math.min(ws / nx, hs / ny / aspectRatioRev)
 
                     if (wi > bestWi) {
@@ -61,7 +64,7 @@ export function injectTiling() {
             let itemI = 0
             for (let column = 0; column < grid[1]; column++) {
                 for (let row = 0; row < grid[0]; row++) {
-                    const instance = insts[itemI]
+                    const instance = instances[itemI]
                     if (!instance) break
                     const item = instance.ig.system.inputDom
                     item.style.position = 'absolute'
