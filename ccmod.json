@@ -2,15 +2,12 @@
     "id": "cc-instanceinator",
     "version": "0.0.1",
     "title": "Instanceinator inator",
-    "description": "No way",
-    "repository": "",
-    "tags": [],
+    "description": "CrossCode instance creator",
+    "repository": "https://github.com/krypciak/cc-instanceinator",
+    "tags": ["library"],
     "authors": ["krypek"],
     "icons": {
         "24": "icon/icon.png"
-    },
-    "dependencies": {
-        "crosscode": ">=1.4.0"
     },
     "plugin": "plugin.js"
 }
