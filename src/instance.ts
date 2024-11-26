@@ -1,22 +1,22 @@
 import { getDisplayInstances } from './tiler'
 
 type SetFunc = (name: string, to?: any) => void
-export class Instance {
+export class InstanceinatorInstance {
     private static instanceIdCounter = 0
 
     public static resetInstanceIdCounter() {
-        if (Object.keys(inst.instances).length != 0)
-            throw new Error('inst.instances need to be empty when calling resetInstanceIdCounter!')
+        if (Object.keys(instanceinator.instances).length != 0)
+            throw new Error('instanceinator.instances need to be empty when calling resetInstanceIdCounter!')
         this.instanceIdCounter = 0
     }
 
-    static currentReference(name?: string, display?: boolean): Instance {
-        return new Instance(ig, sc, name, display)
+    static currentReference(name?: string, display?: boolean): InstanceinatorInstance {
+        return new InstanceinatorInstance(ig, sc, name, display)
     }
 
     public static displayInstanceId: boolean = true
 
-    static async copy(s: Instance, name?: string, display?: boolean): Promise<Instance> {
+    static async copy(s: InstanceinatorInstance, name?: string, display?: boolean): Promise<InstanceinatorInstance> {
         const ig: any = {}
         const igToInit: string[] = []
         for (const key in s.ig) {
@@ -92,7 +92,7 @@ export class Instance {
         scset('skilltree')
         scset('version')
 
-        const ns = new Instance(ig, sc, name, display)
+        const ns = new InstanceinatorInstance(ig, sc, name, display)
         ns.apply()
 
         const canvasId = `canvas${ns.id}`
@@ -113,7 +113,7 @@ export class Instance {
 
         igset(
             'system',
-            new inst.classes.System(
+            new instanceinator.gameClasses.System(
                 '#' + canvasId,
                 '#' + gameId,
                 s.ig.system.fps,
@@ -198,7 +198,7 @@ export class Instance {
         //
 
         ig.ready = true
-        ig.mainLoader = new sc.StartLoader(inst.classes.CrossCode)
+        ig.mainLoader = new sc.StartLoader(instanceinator.gameClasses.CrossCode)
         ig.mainLoader.load()
 
         await new Promise<void>(res => {
@@ -222,8 +222,8 @@ export class Instance {
         public name: string = 'default',
         public display: boolean = true
     ) {
-        this.id = Instance.instanceIdCounter
-        Instance.instanceIdCounter++
+        this.id = InstanceinatorInstance.instanceIdCounter
+        InstanceinatorInstance.instanceIdCounter++
     }
 
     apply() {
@@ -231,7 +231,7 @@ export class Instance {
         global.ig = window.ig = this.ig
         // @ts-expect-error
         global.sc = window.sc = this.sc
-        inst.instanceId = this.id
+        instanceinator.instanceId = this.id
     }
 }
 
@@ -272,10 +272,10 @@ export function injectInstance() {
         },
         draw() {
             this.parent()
-            if (!Instance.displayInstanceId || getDisplayInstances().length <= 1) return
+            if (!InstanceinatorInstance.displayInstanceId || getDisplayInstances().length <= 1) return
             const text = new ig.TextBlock(
                 sc.fontsystem.font,
-                `#${inst.instanceId} ${inst.instances[inst.instanceId]?.name ?? 'initializing...'}`,
+                `#${instanceinator.instanceId} ${instanceinator.instances[instanceinator.instanceId]?.name ?? 'initializing...'}`,
                 {}
             )
             text.draw(2, 0)
@@ -285,11 +285,11 @@ export function injectInstance() {
     ig.Loader.inject({
         init(gameClass) {
             this.parent(gameClass)
-            this.instanceId = inst.instanceId
+            this.instanceId = instanceinator.instanceId
         },
         finalize() {
-            if (this.instanceId != inst.instanceId) {
-                inst.instances[this.instanceId].ig.game.scheduledTasks.push(() => {
+            if (this.instanceId != instanceinator.instanceId) {
+                instanceinator.instances[this.instanceId].ig.game.scheduledTasks.push(() => {
                     this.finalize()
                 })
             } else {

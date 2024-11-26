@@ -1,14 +1,14 @@
-import CCInstanceinator from './plugin'
+import CCInstanceInator from './plugin'
 
-const modId = CCInstanceinator.mod.id
+const modId = CCInstanceInator.mod.id
 
 ig.System.inject({
     run() {
         if (crossnode.currentTestId != test1.id) return this.parent()
-        const instances = Object.values(inst.instances).sort((a, b) => a.id - b.id)
+        const instances = Object.values(instanceinator.instances).sort((a, b) => a.id - b.id)
 
         if (test1.startSwapping) {
-            let nextInst = instances[instances.findIndex(a => a.id == inst.instanceId) + 1]
+            let nextInst = instances[instances.findIndex(a => a.id == instanceinator.instanceId) + 1]
             if (!nextInst) nextInst = instances[0]
 
             nextInst.apply()
@@ -23,12 +23,12 @@ crossnode.registerTest({
     modId,
     skipFrameWait: true,
     async setup() {
-        inst.Instance.resetInstanceIdCounter()
-        inst.instances[0] = inst.Instance.currentReference('master')
+        instanceinator.Instance.resetInstanceIdCounter()
+        instanceinator.instances[0] = instanceinator.Instance.currentReference('master')
 
         for (let i = 1; i < 2; i++) {
-            const instance = await inst.Instance.copy(inst.instances[0], 'child')
-            inst.append(instance)
+            const instance = await instanceinator.Instance.copy(instanceinator.instances[0], 'child')
+            instanceinator.append(instance)
             instance.apply()
         }
     },
@@ -36,9 +36,9 @@ crossnode.registerTest({
         this.finish(true)
     },
     cleanup() {
-        inst.instances[0].apply()
-        for (const instance of Object.values(inst.instances)) {
-            inst.delete(instance)
+        instanceinator.instances[0].apply()
+        for (const instance of Object.values(instanceinator.instances)) {
+            instanceinator.delete(instance)
         }
     },
 })
@@ -56,18 +56,18 @@ const test1 = crossnode.registerTest<{
     instanceCount: 4,
     startSwapping: false,
     async setup() {
-        inst.Instance.resetInstanceIdCounter()
-        inst.instances[0] = inst.Instance.currentReference('master')
+        instanceinator.Instance.resetInstanceIdCounter()
+        instanceinator.instances[0] = instanceinator.Instance.currentReference('master')
 
         for (let i = 1; i < this.instanceCount; i++) {
-            const instance = await inst.Instance.copy(inst.instances[0], 'child')
-            inst.append(instance)
+            const instance = await instanceinator.Instance.copy(instanceinator.instances[0], 'child')
+            instanceinator.append(instance)
         }
         this.startSwapping = true
     },
     update(frame) {
-        this.frameCountRecord[inst.instanceId] ??= 0
-        this.frameCountRecord[inst.instanceId]++
+        this.frameCountRecord[instanceinator.instanceId] ??= 0
+        this.frameCountRecord[instanceinator.instanceId]++
 
         const multi = 6
         if (frame + 1 >= this.instanceCount * multi) {

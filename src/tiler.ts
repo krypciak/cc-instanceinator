@@ -7,7 +7,7 @@ declare global {
 }
 
 export function getDisplayInstances() {
-    return Object.values(inst.instances).filter(i => i.display)
+    return Object.values(instanceinator.instances).filter(i => i.display)
 }
 
 export function injectTiling() {
@@ -22,13 +22,13 @@ export function injectTiling() {
 
     sc.OptionModel.inject({
         _setDisplaySize(schedule = true) {
-            const instances = getDisplayInstances().sort((a, b) => a.id - b.id)
-            if (instances.length <= 1) return this.parent()
+            const insts = getDisplayInstances().sort((a, b) => a.id - b.id)
+            if (insts.length <= 1) return this.parent()
 
             if (!schedule) return this.parent()
 
-            for (const instance of instances) {
-                instance.ig.game.scheduledTasks.push(() => {
+            for (const inst of insts) {
+                inst.ig.game.scheduledTasks.push(() => {
                     sc.options?._setDisplaySize(false)
                 })
             }
@@ -40,8 +40,8 @@ export function injectTiling() {
                 let bestGrid = [0, 0]
 
                 const aspectRatioRev = 320 / 568
-                for (let nx = 1; nx <= Math.ceil(instances.length); nx++) {
-                    const ny = Math.ceil(instances.length / nx)
+                for (let nx = 1; nx <= Math.ceil(insts.length); nx++) {
+                    const ny = Math.ceil(insts.length / nx)
                     const wi = Math.min(ws / nx, hs / ny / aspectRatioRev)
 
                     if (wi > bestWi) {
@@ -64,17 +64,17 @@ export function injectTiling() {
             let itemI = 0
             for (let column = 0; column < grid[1]; column++) {
                 for (let row = 0; row < grid[0]; row++) {
-                    const instance = instances[itemI]
-                    if (!instance) break
-                    const item = instance.ig.system.inputDom
+                    const inst = insts[itemI]
+                    if (!inst) break
+                    const item = inst.ig.system.inputDom
                     item.style.position = 'absolute'
                     item.style.left = `${row * width + offsetX}px`
                     item.style.top = `${column * height + offsetY}px`
                     item.style.width = `${width}px`
                     item.style.height = `${height}px`
 
-                    instance.ig.system.screenWidth = width
-                    instance.ig.system.screenHeight = height
+                    inst.ig.system.screenWidth = width
+                    inst.ig.system.screenHeight = height
 
                     itemI++
                 }
@@ -83,10 +83,10 @@ export function injectTiling() {
     })
     ig.Input.inject({
         init() {
-            this.instanceId = inst.instanceId
+            this.instanceId = instanceinator.instanceId
         },
         mousemove(event) {
-            if (this.instanceId == inst.instanceId) {
+            if (this.instanceId == instanceinator.instanceId) {
                 this.parent(event)
             }
         },

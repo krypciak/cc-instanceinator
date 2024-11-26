@@ -1,21 +1,12 @@
 import { PluginClass } from 'ultimate-crosscode-typedefs/modloader/mod'
 import type {} from 'crossnode/crossnode.d.ts'
 import { Mod1 } from './types'
-import { injectInstance, Instance } from './instance'
+import { injectInstance, InstanceinatorInstance } from './instance'
 import { injectTiling } from './tiler'
 
 export default class CCInstanceinator implements PluginClass {
     static dir: string
     static mod: Mod1
-
-    instanceId: number = 0
-    instances: Record<number, Instance> = {}
-
-    classes!: {
-        System: ig.SystemConstructor
-        CrossCode: sc.CrossCodeConstructor
-    }
-    Instance: typeof Instance
 
     constructor(mod: Mod1) {
         CCInstanceinator.dir = mod.baseDirectory
@@ -24,13 +15,11 @@ export default class CCInstanceinator implements PluginClass {
         CCInstanceinator.mod.isCCModPacked = mod.baseDirectory.endsWith('.ccmod/')
         if (!CCInstanceinator.mod.isCCL3) Object.assign(mod, { id: CCInstanceinator.mod.name })
 
-        this.Instance = Instance
-
-        global.inst = window.inst = this
+        global.instanceinator = window.instanceinator = new Instanceinator()
     }
 
     async prestart() {
-        this.classes = {
+        instanceinator.gameClasses = {
             System: ig.System.extend({
                 startRunLoop() {},
             }),
@@ -44,14 +33,20 @@ export default class CCInstanceinator implements PluginClass {
             }),
         }
 
+        injectInstance()
+        injectTiling()
+        if (window.crossnode?.options.test) {
+            import('./tests')
+        }
+
         // ig.System.inject({
         //     run() {
-        //         const instances = Object.values(inst.instances).sort((a, b) => a.id - b.id)
-        //         if (instances.length <= 1) return this.parent()
+        //         const insts = Object.values(instanceinator.instances).sort((a, b) => a.id - b.id)
+        //         if (insts.length <= 1) return this.parent()
         //
-        //         if (instances.length == 6) {
-        //             let nextInst = instances[instances.findIndex(a => a.id == inst.instanceId) + 1]
-        //             if (!nextInst) nextInst = instances[0]
+        //         if (insts.length == 6) {
+        //             let nextInst = insts[insts.findIndex(a => a.id == instanceinator.instanceId) + 1]
+        //             if (!nextInst) nextInst = insts[0]
         //
         //             nextInst.apply()
         //         }
@@ -59,37 +54,43 @@ export default class CCInstanceinator implements PluginClass {
         //         this.parent()
         //     },
         // })
-        injectInstance()
-        injectTiling()
-        if (window.crossnode?.options.test) {
-            import('./tests')
-        }
     }
 
     // async poststart() {
-    //     this.instances[0] = Instance.currentReference('master')
+    //     instanceinator.instances[0] = instanceinator.Instance.currentReference('master')
     //
     //     for (let i = 1; i < 6; i++) {
-    //         const instance = await Instance.copy(this.instances[0], 'child')
-    //         this.append(instance)
-    //         instance.apply()
+    //         const inst = await instanceinator.Instance.copy(instanceinator.instances[0], 'child')
+    //         instanceinator.append(inst)
+    //         inst.apply()
     //     }
     // }
+}
 
-    append(instance: Instance) {
+class Instanceinator {
+    instanceId: number = 0
+    instances: Record<number, InstanceinatorInstance> = {}
+
+    Instance = InstanceinatorInstance
+    gameClasses!: {
+        System: ig.SystemConstructor
+        CrossCode: sc.CrossCodeConstructor
+    }
+
+    append(instance: InstanceinatorInstance) {
         this.instances[instance.id] = instance
     }
 
-    delete(instance: Instance) {
+    delete(instance: InstanceinatorInstance) {
         delete this.instances[instance.id]
     }
 }
 
 declare global {
-    var inst: CCInstanceinator
+    var instanceinator: Instanceinator
     namespace NodeJS {
         interface Global {
-            inst: CCInstanceinator
+            instanceinator: Instanceinator
         }
     }
 }
