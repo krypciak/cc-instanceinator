@@ -191,6 +191,14 @@ export class InstanceinatorInstance {
         scset('inventory', new sc.Inventory())
         scset('keyBinderGui', new sc.KeyBinderGui())
 
+        igToInit.erase('game')
+        igToInit.erase('mainLoader')
+        igToInit.erase('vars')
+        for (const k of igToInit) igset(k)
+
+        scToInit.erase('gui')
+        for (const k of scToInit) scset(k)
+
         ig.initGameAddons = () => gameAddons
         // igset('game', new sc.CrossCode())
         // ig.initGameAddons = undefined
