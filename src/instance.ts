@@ -11,7 +11,7 @@ export class InstanceinatorInstance {
 
     static currentReference(name?: string, display?: boolean): InstanceinatorInstance {
         const nc = new InstanceinatorInstance(ig, sc, name, display)
-        if (!display) nc.ig.system.canvas.style.display = 'none'
+        if (!display) nc.ig.system.inputDom.style.display = 'none'
         return nc
     }
 
@@ -136,7 +136,8 @@ export class InstanceinatorInstance {
         )
         igset('input', new ig.Input())
         igset('music', new ig.Music())
-        igset('imageAtlas', new ig.ImageAtlas())
+        igset('imageAtlas')
+        // igset('imageAtlas', new ig.ImageAtlas())
         igset('spritePool', new ig.SpritePool())
 
         /* addons */
@@ -221,6 +222,8 @@ export class InstanceinatorInstance {
         ig.mainLoader = new sc.StartLoader(instanceinator.gameClasses.CrossCode)
         ig.mainLoader.load()
 
+        instanceinator.Instance.revert()
+
         await new Promise<void>(res => {
             const id = setInterval(() => {
                 if (ig.ready) {
@@ -230,8 +233,14 @@ export class InstanceinatorInstance {
             }, 100)
         })
 
-        s.apply()
+        // revertAfterTo.apply()
         return ns
+    }
+
+    static prevInstanceId: number = 0
+
+    static revert() {
+        instanceinator.instances[this.prevInstanceId].apply()
     }
 
     id: number
@@ -247,6 +256,8 @@ export class InstanceinatorInstance {
     }
 
     apply() {
+        InstanceinatorInstance.prevInstanceId = instanceinator.instanceId
+
         // @ts-expect-error
         global.ig = window.ig = this.ig
         // @ts-expect-error
@@ -294,7 +305,7 @@ export function injectInstance() {
             this.scheduledTasks = []
             this.parent()
         },
-        run() {
+        update() {
             for (const task of this.scheduledTasks) task()
             this.scheduledTasks = []
 
@@ -319,6 +330,10 @@ export function injectInstance() {
             } else {
                 this.parent()
             }
+        },
+        draw() {
+            if (this.instanceId != instanceinator.instanceId) return
+            this.parent()
         },
     })
 }
