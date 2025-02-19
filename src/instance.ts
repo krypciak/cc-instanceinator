@@ -1,4 +1,5 @@
 type SetFunc = (name: string, to?: any) => void
+
 export class InstanceinatorInstance {
     private static instanceIdCounter = 0
 
@@ -9,10 +10,36 @@ export class InstanceinatorInstance {
     }
 
     static currentReference(name?: string, display?: boolean): InstanceinatorInstance {
-        return new InstanceinatorInstance(ig, sc, name, display)
+        const nc = new InstanceinatorInstance(ig, sc, name, display)
+        if (!display) nc.ig.system.canvas.style.display = 'none'
+        return nc
     }
 
     public static displayInstanceId: boolean = true
+
+    private static createDomElements(id: number, display?: boolean) {
+        const canvasId = `canvas${id}`
+        const gameId = `game${id}`
+        const divE = document.createElement('div')
+        divE.id = gameId
+
+        const canvasE = document.createElement('canvas')
+        canvasE.id = canvasId
+
+        divE.appendChild(canvasE)
+
+        document.body.appendChild(divE)
+        if (!display) {
+            divE.style.display = 'none'
+        }
+
+        return {
+            canvasId: `canvas${id}`,
+            gameId: `game${id}`,
+            canvasE,
+            divE,
+        }
+    }
 
     static async copy(s: InstanceinatorInstance, name?: string, display?: boolean): Promise<InstanceinatorInstance> {
         const ig: any = {}
@@ -93,21 +120,7 @@ export class InstanceinatorInstance {
         const ns = new InstanceinatorInstance(ig, sc, name, display)
         ns.apply()
 
-        const canvasId = `canvas${ns.id}`
-        const gameId = `game${ns.id}`
-
-        const divE = document.createElement('div')
-        divE.id = gameId
-
-        const canvasE = document.createElement('canvas')
-        canvasE.id = canvasId
-
-        divE.appendChild(canvasE)
-
-        document.body.appendChild(divE)
-        if (!ns.display) {
-            divE.style.display = 'none'
-        }
+        const { canvasId, gameId } = this.createDomElements(ns.id, display)
 
         igset('classIdToClass')
         igset(
