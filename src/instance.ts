@@ -253,6 +253,16 @@ export class InstanceinatorInstance {
         global.sc = window.sc = this.sc
         instanceinator.instanceId = this.id
     }
+
+    drawLabel() {
+        if (!InstanceinatorInstance.displayInstanceId /*|| getDisplayInstances().length <= 1*/) return
+        const text = new ig.TextBlock(
+            sc.fontsystem.font,
+            `#${instanceinator.instanceId} ${instanceinator.instances[instanceinator.instanceId].name}`,
+            {}
+        )
+        text.draw(2, 0)
+    }
 }
 
 declare global {
@@ -292,13 +302,7 @@ export function injectInstance() {
         },
         draw() {
             this.parent()
-            if (!InstanceinatorInstance.displayInstanceId /*|| getDisplayInstances().length <= 1*/) return
-            const text = new ig.TextBlock(
-                sc.fontsystem.font,
-                `#${instanceinator.instanceId} ${instanceinator.instances[instanceinator.instanceId]?.name ?? 'initializing...'}`,
-                {}
-            )
-            text.draw(2, 0)
+            instanceinator.instances[instanceinator.instanceId]?.drawLabel()
         },
     })
 
