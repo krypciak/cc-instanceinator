@@ -1,5 +1,3 @@
-import { getDisplayInstances } from './tiler'
-
 type SetFunc = (name: string, to?: any) => void
 export class InstanceinatorInstance {
     private static instanceIdCounter = 0
@@ -111,6 +109,7 @@ export class InstanceinatorInstance {
             divE.style.display = 'none'
         }
 
+        igset('classIdToClass')
         igset(
             'system',
             new instanceinator.gameClasses.System(
@@ -134,7 +133,7 @@ export class InstanceinatorInstance {
         igset('camera', new ig.Camera())
         igset('rumble', new ig.Rumble())
         igset('slowMotion', new ig.SlowMotion())
-        igset('gui', new ig.Gui())
+        igset('gui', new instanceinator.gameClasses.Gui())
         igset('guiImage', new ig.GuiImage())
         igset('light', new ig.Light())
         igset('weather', new ig.Weather())
@@ -280,7 +279,7 @@ export function injectInstance() {
         },
         draw() {
             this.parent()
-            if (!InstanceinatorInstance.displayInstanceId || getDisplayInstances().length <= 1) return
+            if (!InstanceinatorInstance.displayInstanceId /*|| getDisplayInstances().length <= 1*/) return
             const text = new ig.TextBlock(
                 sc.fontsystem.font,
                 `#${instanceinator.instanceId} ${instanceinator.instances[instanceinator.instanceId]?.name ?? 'initializing...'}`,

@@ -4,6 +4,8 @@ import { Mod1 } from './types'
 import { injectInstance, InstanceinatorInstance } from './instance'
 import { injectTiling } from './tiler'
 
+import './class-id-to-class'
+
 export default class CCInstanceinator implements PluginClass {
     static dir: string
     static mod: Mod1
@@ -29,6 +31,14 @@ export default class CCInstanceinator implements PluginClass {
                     this.events = new ig.EventManager()
                     this.renderer = new ig.Renderer2d()
                     this.physics = new ig.Physics()
+                },
+            }),
+            Gui: ig.Gui.extend({
+                init() {
+                    this.parent()
+                    this.renderer = new (ig.classIdToClass[
+                        this.renderer.classId
+                    ] as unknown as ig.GuiRendererConstructor)()
                 },
             }),
         }
@@ -75,6 +85,7 @@ class Instanceinator {
     gameClasses!: {
         System: ig.SystemConstructor
         CrossCode: sc.CrossCodeConstructor
+        Gui: ig.GuiConstructor
     }
 
     append(instance: InstanceinatorInstance) {
