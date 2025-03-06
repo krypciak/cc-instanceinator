@@ -91,12 +91,17 @@ class Instanceinator {
         Gui: ig.GuiConstructor
     }
 
+    appendListeners: ((id: number) => void)[] = []
+    deleteListeners: ((id: number) => void)[] = []
+
     append(instance: InstanceinatorInstance) {
         this.instances[instance.id] = instance
+        for (const func of this.appendListeners) func(instance.id)
     }
 
     delete(instance: InstanceinatorInstance) {
         delete this.instances[instance.id]
+        for (const func of this.deleteListeners) func(instance.id)
     }
 }
 
