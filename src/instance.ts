@@ -41,7 +41,37 @@ export class InstanceinatorInstance {
         }
     }
 
+    private static classes: ReturnType<typeof this.initClasses>
+    private static initClasses() {
+        const System: ig.SystemConstructor = ig.System.extend({
+            startRunLoop() {},
+        })
+        const CrossCode: sc.CrossCodeConstructor = sc.CrossCode.extend({
+            init() {
+                this.parent()
+                this.events = new ig.EventManager()
+                this.renderer = new ig.Renderer2d()
+                this.physics = new ig.Physics()
+            },
+        })
+        const Gui: ig.GuiConstructor = ig.Gui.extend({
+            init() {
+                this.parent()
+                this.renderer = new (ig.classIdToClass[this.renderer.classId] as unknown as ig.GuiRendererConstructor)()
+            },
+        })
+        const classes = {
+            System,
+            CrossCode,
+            Gui,
+        }
+        this.classes = classes
+        return classes
+    }
+
     static async copy(s: InstanceinatorInstance, name?: string, display?: boolean): Promise<InstanceinatorInstance> {
+        if (!InstanceinatorInstance.classes) InstanceinatorInstance.initClasses()
+
         const ig: any = {}
         const igToInit: string[] = []
         for (const key in s.ig) {
@@ -125,7 +155,7 @@ export class InstanceinatorInstance {
         igset('classIdToClass')
         igset(
             'system',
-            new instanceinator.gameClasses.System(
+            new InstanceinatorInstance.classes.System(
                 '#' + canvasId,
                 '#' + gameId,
                 s.ig.system.fps,
@@ -147,7 +177,7 @@ export class InstanceinatorInstance {
         igset('camera', new ig.Camera())
         igset('rumble', new ig.Rumble())
         igset('slowMotion', new ig.SlowMotion())
-        igset('gui', new instanceinator.gameClasses.Gui())
+        igset('gui', new InstanceinatorInstance.classes.Gui())
         igset('guiImage', new ig.GuiImage())
         igset('light', new ig.Light())
         igset('weather', new ig.Weather())
@@ -219,7 +249,7 @@ export class InstanceinatorInstance {
         //
 
         ig.ready = true
-        ig.mainLoader = new sc.StartLoader(instanceinator.gameClasses.CrossCode)
+        ig.mainLoader = new sc.StartLoader(InstanceinatorInstance.classes.CrossCode)
         ig.mainLoader.load()
 
         instanceinator.Instance.revert()

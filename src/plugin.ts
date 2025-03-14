@@ -22,28 +22,6 @@ export default class CCInstanceinator implements PluginClass {
     }
 
     async prestart() {
-        instanceinator.gameClasses = {
-            System: ig.System.extend({
-                startRunLoop() {},
-            }),
-            CrossCode: sc.CrossCode.extend({
-                init() {
-                    this.parent()
-                    this.events = new ig.EventManager()
-                    this.renderer = new ig.Renderer2d()
-                    this.physics = new ig.Physics()
-                },
-            }),
-            Gui: ig.Gui.extend({
-                init() {
-                    this.parent()
-                    this.renderer = new (ig.classIdToClass[
-                        this.renderer.classId
-                    ] as unknown as ig.GuiRendererConstructor)()
-                },
-            }),
-        }
-
         injectInstance()
         injectTiling()
         injectFocus()
@@ -85,11 +63,6 @@ class Instanceinator {
     currentInstanceFocus: number = 0
 
     Instance = InstanceinatorInstance
-    gameClasses!: {
-        System: ig.SystemConstructor
-        CrossCode: sc.CrossCodeConstructor
-        Gui: ig.GuiConstructor
-    }
 
     appendListeners: ((id: number) => void)[] = []
     deleteListeners: ((id: number) => void)[] = []
