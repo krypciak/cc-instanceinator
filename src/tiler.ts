@@ -81,15 +81,4 @@ export function injectTiling() {
             }
         },
     })
-    ig.Input.inject({
-        init() {
-            if (this.parent) this.parent()
-            this.instanceId = instanceinator.instanceId
-        },
-        mousemove(event) {
-            if (this.instanceId == instanceinator.instanceId) {
-                this.parent(event)
-            }
-        },
-    })
 }

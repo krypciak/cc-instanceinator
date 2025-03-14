@@ -6,7 +6,19 @@ declare global {
     }
 }
 export function injectFocus() {
+    const replace = function (this: any, ...args: any) {
+        const inst = instanceinator.instances[this.instanceId]
+        if (inst?.display) {
+            inst.apply()
+            this.parent(...args)
+            instanceinator.Instance.revert()
+        }
+    }
     ig.Input.inject({
+        init() {
+            if (this.parent) this.parent()
+            this.instanceId = instanceinator.instanceId
+        },
         initMouse() {
             this.parent()
 
@@ -20,7 +32,10 @@ export function injectFocus() {
         },
         keydown(event) {
             if (event.type == 'keydown' && this.isMouseOutOfInputDom) return
-            this.parent(event)
+            replace.call(this, event)
         },
+        mousemove: replace,
+        mousewheel: replace,
+        keyup: replace,
     })
 }
