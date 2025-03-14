@@ -147,6 +147,8 @@ export class InstanceinatorInstance {
         scset('skilltree')
         scset('version')
 
+        const prevInst = instanceinator.instances[instanceinator.instanceId]
+
         const ns = new InstanceinatorInstance(ig, sc, name, display)
         ns.apply()
 
@@ -252,7 +254,7 @@ export class InstanceinatorInstance {
         ig.mainLoader = new sc.StartLoader(InstanceinatorInstance.classes.CrossCode)
         ig.mainLoader.load()
 
-        instanceinator.Instance.revert()
+        prevInst.apply()
 
         await new Promise<void>(res => {
             const id = setInterval(() => {
@@ -265,12 +267,6 @@ export class InstanceinatorInstance {
 
         // revertAfterTo.apply()
         return ns
-    }
-
-    static prevInstanceId: number = 0
-
-    static revert() {
-        instanceinator.instances[this.prevInstanceId].apply()
     }
 
     id: number
@@ -286,8 +282,6 @@ export class InstanceinatorInstance {
     }
 
     apply() {
-        InstanceinatorInstance.prevInstanceId = instanceinator.instanceId
-
         // @ts-expect-error
         global.ig = window.ig = this.ig
         // @ts-expect-error
