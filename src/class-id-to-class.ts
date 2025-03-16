@@ -2,6 +2,10 @@ export {}
 declare global {
     namespace ig {
         var classIdToClass: Record<number, ig.ClassConstructor>
+
+        interface Class {
+            _instanceId: number
+        }
     }
 }
 /* inject into console.error in order to modify ig.Class.extend right after it's initialized
@@ -15,6 +19,12 @@ Object.defineProperty(window.console, 'error', {
             ig.Class.extend = function (a) {
                 const ret = origExtend.call(this, a) as ig.ClassConstructor
                 ig.classIdToClass[ret.classId] = ret
+
+                const orig = ret.prototype.init
+                ret.prototype.init = function (...args) {
+                    this._instanceId = instanceinator.instanceId
+                    if (orig) orig.call(this, ...args)
+                }
                 return ret as any
             }
 

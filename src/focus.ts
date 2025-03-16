@@ -7,7 +7,7 @@ declare global {
 }
 export function injectFocus() {
     const replace = function (this: any, ...args: any) {
-        const inst = instanceinator.instances[this.instanceId]
+        const inst = instanceinator.instances[this._instanceId]
         if (inst?.display) {
             const prevInst = instanceinator.instances[instanceinator.instanceId]
             inst.apply()
@@ -16,10 +16,6 @@ export function injectFocus() {
         }
     }
     ig.Input.inject({
-        init() {
-            if (this.parent) this.parent()
-            this.instanceId = instanceinator.instanceId
-        },
         initMouse() {
             this.parent()
 

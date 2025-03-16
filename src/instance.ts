@@ -302,14 +302,8 @@ export class InstanceinatorInstance {
 
 declare global {
     namespace ig {
-        interface Loader {
-            instanceId: number
-        }
         interface Game {
             scheduledTasks: (() => void)[]
-        }
-        interface Input {
-            instanceId: number
         }
     }
 }
@@ -342,13 +336,9 @@ export function injectInstance() {
     })
 
     ig.Loader.inject({
-        init(gameClass) {
-            this.parent(gameClass)
-            this.instanceId = instanceinator.instanceId
-        },
         finalize() {
-            if (this.instanceId != instanceinator.instanceId) {
-                instanceinator.instances[this.instanceId].ig.game.scheduledTasks.push(() => {
+            if (this._instanceId != instanceinator.instanceId) {
+                instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
                     this.finalize()
                 })
             } else {
@@ -356,7 +346,7 @@ export function injectInstance() {
             }
         },
         draw() {
-            if (this.instanceId != instanceinator.instanceId) return
+            if (this._instanceId != instanceinator.instanceId) return
             this.parent()
         },
     })
