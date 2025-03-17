@@ -296,7 +296,7 @@ export class InstanceinatorInstance {
             `#${instanceinator.instanceId} ${instanceinator.instances[instanceinator.instanceId].name}`,
             {}
         )
-        text.draw(2, 0)
+        text.draw(ig.system.width - text.size.x - 5, 0)
     }
 }
 
