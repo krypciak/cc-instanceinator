@@ -4,6 +4,7 @@ import { Mod1 } from './types'
 import { injectInstance, InstanceinatorInstance } from './instance'
 import { injectTiling } from './tiler'
 import { injectFocus } from './focus'
+import { injectCacheableFix } from './cachable-fix'
 
 import './class-id-to-class'
 
@@ -19,12 +20,14 @@ export default class CCInstanceinator implements PluginClass {
         if (!CCInstanceinator.mod.isCCL3) Object.assign(mod, { id: CCInstanceinator.mod.name })
 
         global.instanceinator = window.instanceinator = new Instanceinator()
+
     }
 
     async prestart() {
         injectInstance()
         injectTiling()
         injectFocus()
+        injectCacheableFix()
         if (window.crossnode?.options.test) {
             import('./tests')
         }
