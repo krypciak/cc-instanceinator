@@ -350,4 +350,14 @@ export function injectInstance() {
             this.parent()
         },
     })
+
+    cursorFix()
+}
+function cursorFix() {
+    const sheet = [...document.styleSheets].find(sheet => sheet.href!.endsWith('game/page/game-base.css'))!
+    for (const rule of sheet.cssRules) {
+        if ('selectorText' in rule && typeof rule.selectorText == 'string' && rule.selectorText.startsWith('#game')) {
+            rule.selectorText = rule.selectorText.replace(/#game/, '[id^="game"]')
+        }
+    }
 }
