@@ -20,7 +20,6 @@ export default class CCInstanceinator implements PluginClass {
         if (!CCInstanceinator.mod.isCCL3) Object.assign(mod, { id: CCInstanceinator.mod.name })
 
         global.instanceinator = window.instanceinator = new Instanceinator()
-
     }
 
     async prestart() {
@@ -31,33 +30,11 @@ export default class CCInstanceinator implements PluginClass {
         if (window.crossnode?.options.test) {
             import('./tests')
         }
-
-        // ig.System.inject({
-        //     run() {
-        //         const insts = Object.values(instanceinator.instances).sort((a, b) => a.id - b.id)
-        //         if (insts.length <= 1) return this.parent()
-        //
-        //         if (insts.length == 6) {
-        //             let nextInst = insts[insts.findIndex(a => a.id == instanceinator.instanceId) + 1]
-        //             if (!nextInst) nextInst = insts[0]
-        //
-        //             nextInst.apply()
-        //         }
-        //
-        //         this.parent()
-        //     },
-        // })
     }
-
-    // async poststart() {
-    //     instanceinator.instances[0] = instanceinator.Instance.currentReference('master')
-    //
-    //     for (let i = 1; i < 6; i++) {
-    //         const inst = await instanceinator.Instance.copy(instanceinator.instances[0], 'child')
-    //         instanceinator.append(inst)
-    //         inst.apply()
-    //     }
-    // }
+    async poststart() {
+        const baseInst = instanceinator.Instance.currentReference('base', true)
+        instanceinator.append(baseInst)
+    }
 }
 
 class Instanceinator {
@@ -76,6 +53,7 @@ class Instanceinator {
     }
 
     delete(instance: InstanceinatorInstance) {
+        if (instance.id == 0) throw new Error('Cannot delete base instance with id 0!')
         delete this.instances[instance.id]
         for (const func of this.deleteListeners) func(instance.id)
     }

@@ -24,8 +24,6 @@ crossnode.registerTest({
     skipFrameWait: true,
     async setup() {
         instanceinator.Instance.resetInstanceIdCounter()
-        instanceinator.instances[0] = instanceinator.Instance.currentReference('master')
-
         for (let i = 1; i < 2; i++) {
             const instance = await instanceinator.Instance.copy(instanceinator.instances[0], 'child')
             instanceinator.append(instance)
@@ -38,6 +36,7 @@ crossnode.registerTest({
     cleanup() {
         instanceinator.instances[0].apply()
         for (const instance of Object.values(instanceinator.instances)) {
+            if (instance.id == 0) continue
             instanceinator.delete(instance)
         }
     },
@@ -57,8 +56,6 @@ const test1 = crossnode.registerTest<{
     startSwapping: false,
     async setup() {
         instanceinator.Instance.resetInstanceIdCounter()
-        instanceinator.instances[0] = instanceinator.Instance.currentReference('master')
-
         for (let i = 1; i < this.instanceCount; i++) {
             const instance = await instanceinator.Instance.copy(instanceinator.instances[0], 'child')
             instanceinator.append(instance)
@@ -82,5 +79,11 @@ const test1 = crossnode.registerTest<{
             this.finish(true)
         }
     },
-    cleanup() {},
+    cleanup() {
+        instanceinator.instances[0].apply()
+        for (const instance of Object.values(instanceinator.instances)) {
+            if (instance.id == 0) continue
+            instanceinator.delete(instance)
+        }
+    },
 })

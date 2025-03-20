@@ -4,9 +4,9 @@ export class InstanceinatorInstance {
     private static instanceIdCounter = 0
 
     public static resetInstanceIdCounter() {
-        if (Object.keys(instanceinator.instances).length != 0)
+        if (Object.keys(instanceinator.instances).length != 1)
             throw new Error('instanceinator.instances need to be empty when calling resetInstanceIdCounter!')
-        this.instanceIdCounter = 0
+        this.instanceIdCounter = 1
     }
 
     static currentReference(name?: string, display?: boolean): InstanceinatorInstance {
@@ -15,7 +15,7 @@ export class InstanceinatorInstance {
         return nc
     }
 
-    public static displayInstanceId: boolean = true
+    public static displayInstanceId: boolean = false
 
     private static createDomElements(id: number, display?: boolean) {
         const canvasId = `canvas${id}`
