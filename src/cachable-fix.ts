@@ -27,7 +27,7 @@ export function injectCacheableFix() {
             let cacheKey = this.getCacheKey.call(this, ...args)
 
             /* changed here */
-            if (this.instanceUnique) cacheKey = `${cacheKey}_inst_${instanceinator.instanceId}`
+            if (this.instanceUnique) cacheKey = `${cacheKey}_inst_${instanceinator.id}`
 
             if (cacheKey) {
                 this.cacheKey = cacheKey

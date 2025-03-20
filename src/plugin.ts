@@ -38,7 +38,7 @@ export default class CCInstanceinator implements PluginClass {
 }
 
 class Instanceinator {
-    instanceId: number = 0
+    id: number = 0
     instances: Record<number, InstanceinatorInstance> = {}
     currentInstanceFocus: number = 0
 

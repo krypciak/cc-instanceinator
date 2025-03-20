@@ -9,7 +9,7 @@ export function injectFocus() {
     const replace = function (this: any, ...args: any) {
         const inst = instanceinator.instances[this._instanceId]
         if (inst?.display) {
-            const prevInst = instanceinator.instances[instanceinator.instanceId]
+            const prevInst = instanceinator.instances[instanceinator.id]
             inst.apply()
             this.parent(...args)
             prevInst.apply()

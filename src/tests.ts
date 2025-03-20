@@ -8,7 +8,7 @@ ig.System.inject({
         const instances = Object.values(instanceinator.instances).sort((a, b) => a.id - b.id)
 
         if (test1.startSwapping) {
-            let nextInst = instances[instances.findIndex(a => a.id == instanceinator.instanceId) + 1]
+            let nextInst = instances[instances.findIndex(a => a.id == instanceinator.id) + 1]
             if (!nextInst) nextInst = instances[0]
 
             nextInst.apply()
@@ -63,8 +63,8 @@ const test1 = crossnode.registerTest<{
         this.startSwapping = true
     },
     update(frame) {
-        this.frameCountRecord[instanceinator.instanceId] ??= 0
-        this.frameCountRecord[instanceinator.instanceId]++
+        this.frameCountRecord[instanceinator.id] ??= 0
+        this.frameCountRecord[instanceinator.id]++
 
         const multi = 6
         if (frame + 1 >= this.instanceCount * multi) {

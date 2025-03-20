@@ -147,7 +147,7 @@ export class InstanceinatorInstance {
         scset('skilltree')
         scset('version')
 
-        const prevInst = instanceinator.instances[instanceinator.instanceId]
+        const prevInst = instanceinator.instances[instanceinator.id]
 
         const ns = new InstanceinatorInstance(ig, sc, name, display)
         ns.apply()
@@ -286,14 +286,14 @@ export class InstanceinatorInstance {
         global.ig = window.ig = this.ig
         // @ts-expect-error
         global.sc = window.sc = this.sc
-        instanceinator.instanceId = this.id
+        instanceinator.id = this.id
     }
 
     drawLabel() {
         if (!InstanceinatorInstance.displayInstanceId /*|| getDisplayInstances().length <= 1*/) return
         const text = new ig.TextBlock(
             sc.fontsystem.font,
-            `#${instanceinator.instanceId} ${instanceinator.instances[instanceinator.instanceId].name}`,
+            `#${instanceinator.id} ${instanceinator.instances[instanceinator.id].name}`,
             {}
         )
         text.draw(ig.system.width - text.size.x - 5, 0)
@@ -331,13 +331,13 @@ export function injectInstance() {
         },
         draw() {
             this.parent()
-            instanceinator.instances[instanceinator.instanceId]?.drawLabel()
+            instanceinator.instances[instanceinator.id]?.drawLabel()
         },
     })
 
     ig.Loader.inject({
         finalize() {
-            if (this._instanceId != instanceinator.instanceId) {
+            if (this._instanceId != instanceinator.id) {
                 instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
                     this.finalize()
                 })
@@ -346,7 +346,7 @@ export function injectInstance() {
             }
         },
         draw() {
-            if (this._instanceId != instanceinator.instanceId) return
+            if (this._instanceId != instanceinator.id) return
             this.parent()
         },
     })
