@@ -1,7 +1,7 @@
 import { PluginClass } from 'ultimate-crosscode-typedefs/modloader/mod'
 import type {} from 'crossnode/crossnode.d.ts'
 import { Mod1 } from './types'
-import { injectInstance, InstanceinatorInstance } from './instance'
+import { injectInstance, copyInstance, InstanceinatorInstance } from './instance'
 import { injectTiling } from './tiler'
 import { injectFocus } from './focus'
 import { injectCacheableFix } from './cachable-fix'
@@ -32,8 +32,16 @@ export default class CCInstanceinator implements PluginClass {
         }
     }
     async poststart() {
-        const baseInst = instanceinator.Instance.currentReference('base', true)
-        instanceinator.append(baseInst)
+        instanceinator.append(new InstanceinatorInstance(ig, sc, 'base', true))
+    }
+}
+
+declare global {
+    var instanceinator: Instanceinator
+    namespace NodeJS {
+        interface Global {
+            instanceinator: Instanceinator
+        }
     }
 }
 
@@ -41,11 +49,17 @@ class Instanceinator {
     id: number = 0
     instances: Record<number, InstanceinatorInstance> = {}
     currentInstanceFocus: number = 0
-
-    Instance = InstanceinatorInstance
+    idCounter: number = 0
+    displayId: boolean = false
 
     appendListeners: ((id: number) => void)[] = []
     deleteListeners: ((id: number) => void)[] = []
+
+    resetInstanceIdCounter() {
+        if (Object.keys(instanceinator.instances).length != 1)
+            throw new Error('instanceinator.instances need to be empty when calling resetInstanceIdCounter!')
+        this.idCounter = 1
+    }
 
     append(instance: InstanceinatorInstance) {
         this.instances[instance.id] = instance
@@ -57,13 +71,6 @@ class Instanceinator {
         delete this.instances[instance.id]
         for (const func of this.deleteListeners) func(instance.id)
     }
-}
 
-declare global {
-    var instanceinator: Instanceinator
-    namespace NodeJS {
-        interface Global {
-            instanceinator: Instanceinator
-        }
-    }
+    copy = copyInstance
 }
