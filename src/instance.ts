@@ -198,7 +198,7 @@ export async function copyInstance(
     scset('detectors', new sc.Detectors())
     scset('combat', new sc.Combat())
     scset('pvp', new sc.PvpModel())
-    scset('newgame', new sc.NewGamePlusModel())
+    scset('newgame')
     scset('enemyBooster', new sc.EnemyBooster())
     scset('gameCode', new sc.GameCode())
     scset('mapInteract', new sc.MapInteract())
