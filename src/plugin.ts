@@ -2,7 +2,7 @@ import { PluginClass } from 'ultimate-crosscode-typedefs/modloader/mod'
 import type {} from 'crossnode/crossnode.d.ts'
 import { Mod1 } from './types'
 import { injectInstance, copyInstance, InstanceinatorInstance } from './instance'
-import { injectTiling } from './tiler'
+import { injectTiling, retile } from './tiler'
 import { injectFocus } from './focus'
 import { injectCacheableFix } from './cachable-fix'
 
@@ -64,13 +64,17 @@ class Instanceinator {
     append(instance: InstanceinatorInstance) {
         this.instances[instance.id] = instance
         for (const func of this.appendListeners) func(instance.id)
+        this.retile()
     }
 
     delete(instance: InstanceinatorInstance) {
         if (instance.id == 0) throw new Error('Cannot delete base instance with id 0!')
         delete this.instances[instance.id]
         for (const func of this.deleteListeners) func(instance.id)
+        this.retile()
     }
+
+    retile = retile
 
     copy = copyInstance
 }
