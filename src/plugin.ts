@@ -1,12 +1,13 @@
 import { PluginClass } from 'ultimate-crosscode-typedefs/modloader/mod'
 import type {} from 'crossnode/crossnode.d.ts'
 import { Mod1 } from './types'
-import { injectInstance, copyInstance, InstanceinatorInstance } from './instance'
+import { injectInstance, InstanceinatorInstance } from './instance'
 import { injectTiling, retile } from './tiler'
 import { injectFocus } from './focus'
 import { injectCacheableFix } from './cachable-fix'
 
 import './class-id-to-class'
+import { copyInstance } from './instance-copy'
 
 export default class CCInstanceinator implements PluginClass {
     static dir: string
@@ -32,7 +33,7 @@ export default class CCInstanceinator implements PluginClass {
         }
     }
     async poststart() {
-        instanceinator.append(new InstanceinatorInstance(ig, sc, 'base', true))
+        instanceinator.append(new InstanceinatorInstance(ig, sc, window.modmanager, 'base', true))
     }
 }
 
