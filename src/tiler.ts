@@ -15,15 +15,16 @@ export function retile() {
         const div = inst.ig.system.inputDom
         div.style.display = 'none'
     }
-    if (displayInsts.length <= 1) {
-        if (displayInsts.length == 1) {
-            const inst = displayInsts[0]
-            const div = inst.ig.system.inputDom
-            div.style.position = 'static'
-            callSetDisplaySize()
-        }
-        return
-    }
+    if (displayInsts.length == 0) return
+    // if (displayInsts.length <= 1) {
+    //     if (displayInsts.length == 1) {
+    //         const inst = displayInsts[0]
+    //         const div = inst.ig.system.inputDom
+    //         div.style.position = 'static'
+    //         callSetDisplaySize()
+    //     }
+    //     return
+    // }
 
     function callSetDisplaySize() {
         const prevInst = instanceinator.instances[instanceinator.id]
