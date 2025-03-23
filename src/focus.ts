@@ -32,7 +32,10 @@ export function injectFocus() {
             replace.call(this, event)
         },
         mousemove: replace,
-        mousewheel: replace,
+        mousewheel(event) {
+            if (this.isMouseOutOfInputDom) return
+            replace.call(this, event)
+        },
         keyup: replace,
     })
 }
