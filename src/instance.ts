@@ -8,10 +8,13 @@ export class InstanceinatorInstance {
         public sc: typeof window.sc,
         public modmanager?: typeof window.modmanager,
         public name: string = 'default',
-        public display: boolean = true
+        public display: boolean = true,
+        public forceDraw: boolean = false
     ) {
         this.id = instanceinator.idCounter
         instanceinator.idCounter++
+
+        if (!display && !forceDraw) this.ig.perf.draw = false
     }
 
     apply() {
@@ -24,14 +27,44 @@ export class InstanceinatorInstance {
         instanceinator.id = this.id
     }
 
-    drawLabel() {
-        if (!instanceinator.displayId /*|| getDisplayInstances().length <= 1*/) return
-        const text = new ig.TextBlock(
-            sc.fontsystem.font,
-            `#${instanceinator.id} ${instanceinator.instances[instanceinator.id].name}`,
-            {}
-        )
-        text.draw(ig.system.width - text.size.x - 5, 0)
+    private lastDrawTime: number = 0
+    private frameAvgCount: number = 60
+    private lastFramesAvg: number = 0
+    private lastFrames: number[] = []
+
+    drawLabels() {
+        let y = 0
+        if (instanceinator.displayId) {
+            const text = new ig.TextBlock(
+                sc.fontsystem.font,
+                `#${instanceinator.id} ${instanceinator.instances[instanceinator.id].name}`,
+                {}
+            )
+            text.draw(ig.system.width - text.size.x - 5, y)
+            y += text.size.y
+        }
+        if (instanceinator.displayFps) {
+            const time = Date.now()
+            const timeDiff = time - this.lastDrawTime
+            this.lastFramesAvg += timeDiff / this.frameAvgCount
+            if (this.lastFrames.length >= this.frameAvgCount) {
+                this.lastFramesAvg -= this.lastFrames[0] / this.frameAvgCount
+                this.lastFrames.splice(0, 1)
+            }
+            this.lastFrames.push(timeDiff)
+            const fps = 1000 / this.lastFramesAvg
+
+            const text = new ig.TextBlock(sc.fontsystem.font, `${fps.round(0)} fps`, {})
+
+            text.draw(ig.system.width - text.size.x - 5, y)
+            y += text.size.y
+            this.lastDrawTime = time
+        }
+    }
+
+    setCanvasScale(scale: number) {
+        this.sc.options.values['pixel-size'] = scale - 1
+        this.ig.system.resize(ig.system.width, ig.system.height, scale)
     }
 }
 
@@ -66,7 +99,9 @@ export function injectInstance() {
         },
         draw() {
             this.parent()
-            instanceinator.instances[instanceinator.id]?.drawLabel()
+            const inst = instanceinator.instances[instanceinator.id]
+            if (!inst) return
+            inst.drawLabels()
         },
     })
 

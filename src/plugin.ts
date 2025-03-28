@@ -52,6 +52,7 @@ class Instanceinator {
     currentInstanceFocus: number = 0
     idCounter: number = 0
     displayId: boolean = false
+    displayFps: boolean = true
 
     appendListeners: ((id: number) => void)[] = []
     deleteListeners: ((id: number) => void)[] = []

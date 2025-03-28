@@ -263,7 +263,8 @@ function afterApplySc(sc: any, scset: SetFunc, scToInit: string[], gameAddons: a
 export async function copyInstance(
     s: InstanceinatorInstance,
     name?: string,
-    display?: boolean
+    display?: boolean,
+    forceDraw?: boolean
 ): Promise<InstanceinatorInstance> {
     if (!classes) initClasses()
 
@@ -274,7 +275,7 @@ export async function copyInstance(
 
     const prevInst = instanceinator.instances[instanceinator.id]
 
-    const ns = new InstanceinatorInstance(ig, sc, modmanager, name, display)
+    const ns = new InstanceinatorInstance(ig, sc, modmanager, name, display, forceDraw)
     ns.apply()
 
     afterApplyIg(ig, igset, igToInit, s, ns, display)
