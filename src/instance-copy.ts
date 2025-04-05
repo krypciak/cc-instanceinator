@@ -7,6 +7,19 @@ type SetFunc = (name: string, to?: any) => void
 let classes: ReturnType<typeof initClasses>
 function initClasses() {
     const System: ig.SystemConstructor = ig.System.extend({
+        init(...args) {
+            const backup = HTMLCanvasElement.prototype.getContext
+            HTMLCanvasElement.prototype.getContext = function (
+                this: HTMLCanvasElement,
+                type: '2d',
+                options: undefined
+            ) {
+                if (options) throw new Error()
+                return backup.call(this, type, { alpha: false, desynchronized: true })
+            } as any
+            this.parent(...args)
+            HTMLCanvasElement.prototype.getContext = backup
+        },
         startRunLoop() {},
     })
     const CrossCode: sc.CrossCodeConstructor = sc.CrossCode.extend({
