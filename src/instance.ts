@@ -8,13 +8,23 @@ export class InstanceinatorInstance {
         public sc: typeof window.sc,
         public modmanager?: typeof window.modmanager,
         public name: string = 'default',
-        public display: boolean = true,
+        private _display: boolean = true,
         public forceDraw: boolean = false
     ) {
         this.id = instanceinator.idCounter
         instanceinator.idCounter++
 
-        if (!display && !forceDraw) this.ig.perf.draw = false
+        if (!this.display && !forceDraw) this.ig.perf.draw = false
+    }
+
+    set display(value: boolean) {
+        this._display = value
+
+        const displayType = value ? 'initial' : 'none'
+        this.ig.system.inputDom.style.display = displayType
+    }
+    get display() {
+        return this._display
     }
 
     apply() {

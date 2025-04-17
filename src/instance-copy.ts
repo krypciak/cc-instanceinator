@@ -144,7 +144,7 @@ function initModManager(s: InstanceinatorInstance) {
     return { modmanager }
 }
 
-function createDomElements(id: number, display?: boolean) {
+function createDomElements(id: number) {
     const canvasId = `canvas${id}`
     const gameId = `game${id}`
     const divE = document.createElement('div')
@@ -156,9 +156,6 @@ function createDomElements(id: number, display?: boolean) {
     divE.appendChild(canvasE)
 
     document.body.appendChild(divE)
-    if (!display) {
-        divE.style.display = 'none'
-    }
 
     return {
         canvasId: `canvas${id}`,
@@ -173,10 +170,9 @@ function afterApplyIg(
     igset: SetFunc,
     igToInit: string[],
     s: InstanceinatorInstance,
-    ns: InstanceinatorInstance,
-    display: boolean | undefined
+    ns: InstanceinatorInstance
 ) {
-    const { canvasId, gameId } = createDomElements(ns.id, display)
+    const { canvasId, gameId } = createDomElements(ns.id)
 
     igset('classIdToClass')
     igset(
@@ -291,8 +287,10 @@ export async function copyInstance(
     const ns = new InstanceinatorInstance(ig, sc, modmanager, name, display, forceDraw)
     ns.apply()
 
-    afterApplyIg(ig, igset, igToInit, s, ns, display)
+    afterApplyIg(ig, igset, igToInit, s, ns)
     afterApplySc(sc, scset, scToInit, gameAddons)
+
+    ns.display = !!display
 
     ig.initGameAddons = () => gameAddons
 
