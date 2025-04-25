@@ -38,8 +38,8 @@ export function retile() {
 
     displayInsts = displayInsts.sort((a, b) => a.id - b.id)
 
-    const ws = document.body.clientWidth
-    const hs = document.body.clientHeight
+    const ws = document.documentElement.clientWidth
+    const hs = document.documentElement.clientHeight
     function fitRectangles() {
         let bestWi = 0
         let bestGrid = [0, 0]
