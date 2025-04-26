@@ -1,7 +1,7 @@
 {
     "id": "cc-instanceinator",
     "version": "0.0.1",
-    "title": "Instanceinator inator",
+    "title": "Instanceinator",
     "description": "CrossCode instance creator",
     "repository": "https://github.com/krypciak/cc-instanceinator",
     "tags": ["library"],
