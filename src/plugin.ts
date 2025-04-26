@@ -70,6 +70,7 @@ class Instanceinator {
     }
 
     delete(instance: InstanceinatorInstance) {
+        if (!instanceinator.instances[instance.id]) return
         if (instance.id == 0) throw new Error('Cannot delete base instance with id 0!')
 
         const div = instance.ig.system?.inputDom
