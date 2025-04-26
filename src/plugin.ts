@@ -1,4 +1,5 @@
 import { PluginClass } from 'ultimate-crosscode-typedefs/modloader/mod'
+import ccmod from '../ccmod.json'
 import type {} from 'crossnode/crossnode.d.ts'
 import { Mod1 } from './types'
 import { injectInstance, InstanceinatorInstance } from './instance'
@@ -8,10 +9,12 @@ import { injectCacheableFix } from './cachable-fix'
 
 import './class-id-to-class'
 import { copyInstance } from './instance-copy'
+import { registerOpts } from './options'
 
 export default class CCInstanceinator implements PluginClass {
     static dir: string
     static mod: Mod1
+    static manifset: typeof import('../ccmod.json') = ccmod
 
     constructor(mod: Mod1) {
         CCInstanceinator.dir = mod.baseDirectory
@@ -24,6 +27,7 @@ export default class CCInstanceinator implements PluginClass {
     }
 
     async prestart() {
+        registerOpts()
         injectInstance()
         injectTiling()
         injectFocus()
