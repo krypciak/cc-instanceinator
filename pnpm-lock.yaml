@@ -22,7 +22,7 @@ importers:
         version: 7.16.0(eslint@8.57.0)(typescript@5.5.3)
       ccmodmanager:
         specifier: github:CCDirectLink/CCModManager
-        version: https://codeload.github.com/CCDirectLink/CCModManager/tar.gz/b9a8aa88be6c12d977b007f7938320bf50348a53
+        version: https://codeload.github.com/CCDirectLink/CCModManager/tar.gz/e0863b8bcb076b8a45cc7575015979507a5e05d8
       crossnode:
         specifier: github:krypciak/crossnode
         version: https://codeload.github.com/krypciak/crossnode/tar.gz/815ebd639a14a7feab9d17d56cb10c0af9f22287
@@ -352,8 +352,8 @@ packages:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
     engines: {node: '>=6'}
 
-  ccmodmanager@https://codeload.github.com/CCDirectLink/CCModManager/tar.gz/b9a8aa88be6c12d977b007f7938320bf50348a53:
-    resolution: {tarball: https://codeload.github.com/CCDirectLink/CCModManager/tar.gz/b9a8aa88be6c12d977b007f7938320bf50348a53}
+  ccmodmanager@https://codeload.github.com/CCDirectLink/CCModManager/tar.gz/e0863b8bcb076b8a45cc7575015979507a5e05d8:
+    resolution: {tarball: https://codeload.github.com/CCDirectLink/CCModManager/tar.gz/e0863b8bcb076b8a45cc7575015979507a5e05d8}
     version: 1.0.3
 
   chalk@4.1.2:
@@ -1008,7 +1008,7 @@ snapshots:
 
   callsites@3.1.0: {}
 
-  ccmodmanager@https://codeload.github.com/CCDirectLink/CCModManager/tar.gz/b9a8aa88be6c12d977b007f7938320bf50348a53: {}
+  ccmodmanager@https://codeload.github.com/CCDirectLink/CCModManager/tar.gz/e0863b8bcb076b8a45cc7575015979507a5e05d8: {}
 
   chalk@4.1.2:
     dependencies:

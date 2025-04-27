@@ -137,6 +137,7 @@ function initModManager(s: InstanceinatorInstance) {
 
     const modmanager: typeof window.modmanager = {
         registerAndGetModOptions: s.modmanager.registerAndGetModOptions,
+        openModOptionsMenu: s.modmanager.openModOptionsMenu,
         optionConfigs: s.modmanager.optionConfigs,
         options: s.modmanager.options,
         gui,
