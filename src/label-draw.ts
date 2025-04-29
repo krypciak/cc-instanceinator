@@ -16,23 +16,39 @@ export class IdLabelDrawClass implements LabelDrawClass {
     }
 }
 
+export class ValueAverageOverTime {
+    private values: number[] = []
+    private avg: number = 0
+
+    constructor(public valueInterval: number) {}
+
+    pushValue(v: number) {
+        this.avg += v / this.valueInterval
+        if (this.values.length >= this.valueInterval) {
+            this.avg -= this.values[0] / this.valueInterval
+            this.values.splice(0, 1)
+        }
+        this.values.push(v)
+    }
+
+    getAverage(): number {
+        if (this.values.length == this.valueInterval) return this.avg
+        return this.avg * (this.valueInterval / this.values.length)
+    }
+}
+
 export class FpsLabelDrawClass implements LabelDrawClass {
+    private avg = new ValueAverageOverTime(60)
     private lastDrawTime: number = 0
-    private frameAvgCount: number = 60
-    private lastFramesAvg: number = 0
-    private lastFrames: number[] = []
 
     draw(y: number) {
         if (!instanceinator.displayFps) return y
         const time = Date.now()
-        const timeDiff = time - this.lastDrawTime
-        this.lastFramesAvg += timeDiff / this.frameAvgCount
-        if (this.lastFrames.length >= this.frameAvgCount) {
-            this.lastFramesAvg -= this.lastFrames[0] / this.frameAvgCount
-            this.lastFrames.splice(0, 1)
-        }
-        this.lastFrames.push(timeDiff)
-        const fps = 1000 / this.lastFramesAvg
+
+        let timeDiff = time - this.lastDrawTime
+        if (this.lastDrawTime == 0) timeDiff = 0
+        this.avg.pushValue(timeDiff)
+        const fps = 1000 / this.avg.getAverage()
 
         const text = new ig.TextBlock(sc.fontsystem.font, `${fps.round(0)} fps`, {})
 
