@@ -6,10 +6,11 @@ import { injectInstance, InstanceinatorInstance } from './instance'
 import { injectTiling, retile } from './tiler'
 import { injectFocus } from './focus'
 import { injectCacheableFix } from './cachable-fix'
-
-import './class-id-to-class'
 import { copyInstance } from './instance-copy'
 import { registerOpts } from './options'
+
+import './class-id-to-class'
+import { FpsLabelDrawClass, IdLabelDrawClass, LabelDrawClass } from './label-draw'
 
 export default class CCInstanceinator implements PluginClass {
     static dir: string
@@ -60,6 +61,8 @@ class Instanceinator {
 
     appendListeners: ((id: number) => void)[] = []
     deleteListeners: ((id: number) => void)[] = []
+
+    labelDrawClasses: (new (instance: InstanceinatorInstance) => LabelDrawClass)[] = [IdLabelDrawClass, FpsLabelDrawClass]
 
     resetInstanceIdCounter() {
         if (Object.keys(instanceinator.instances).length != 1)

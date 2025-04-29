@@ -1,7 +1,9 @@
 import type {} from 'ccmodmanager/types/gui/gui'
+import { IdLabelDrawClass } from './label-draw'
 
 export class InstanceinatorInstance {
     id: number
+    labelDrawClasses: IdLabelDrawClass[]
 
     constructor(
         public ig: typeof window.ig,
@@ -15,6 +17,8 @@ export class InstanceinatorInstance {
         instanceinator.idCounter++
 
         if (!this.display && !forceDraw) this.ig.perf.draw = false
+
+        this.labelDrawClasses = instanceinator.labelDrawClasses.map(clazz => new clazz(this))
     }
 
     set display(value: boolean) {
@@ -37,38 +41,10 @@ export class InstanceinatorInstance {
         instanceinator.id = this.id
     }
 
-    private lastDrawTime: number = 0
-    private frameAvgCount: number = 60
-    private lastFramesAvg: number = 0
-    private lastFrames: number[] = []
-
     drawLabels() {
         let y = 0
-        if (instanceinator.displayId) {
-            const text = new ig.TextBlock(
-                sc.fontsystem.font,
-                `#${instanceinator.id} ${instanceinator.instances[instanceinator.id].name}`,
-                {}
-            )
-            text.draw(ig.system.width - text.size.x - 5, y)
-            y += text.size.y
-        }
-        if (instanceinator.displayFps) {
-            const time = Date.now()
-            const timeDiff = time - this.lastDrawTime
-            this.lastFramesAvg += timeDiff / this.frameAvgCount
-            if (this.lastFrames.length >= this.frameAvgCount) {
-                this.lastFramesAvg -= this.lastFrames[0] / this.frameAvgCount
-                this.lastFrames.splice(0, 1)
-            }
-            this.lastFrames.push(timeDiff)
-            const fps = 1000 / this.lastFramesAvg
-
-            const text = new ig.TextBlock(sc.fontsystem.font, `${fps.round(0)} fps`, {})
-
-            text.draw(ig.system.width - text.size.x - 5, y)
-            y += text.size.y
-            this.lastDrawTime = time
+        for (const clazz of this.labelDrawClasses) {
+            y = clazz.draw(y)
         }
     }
 
