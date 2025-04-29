@@ -125,8 +125,6 @@ function initSc(s: InstanceinatorInstance, gameAddons: any[]) {
 }
 
 function initModManager(s: InstanceinatorInstance) {
-    if (!s.modmanager) return { modmanager: undefined }
-
     const gui: typeof window.modmanager.gui = {} as any
     gui.menu = null as any
     gui.optionsMenu = null as any
