@@ -272,7 +272,8 @@ export async function copyInstance(
     s: InstanceinatorInstance,
     name?: string,
     display?: boolean,
-    forceDraw?: boolean
+    forceDraw?: boolean,
+    preLoad?: (inst: InstanceinatorInstance) => void
 ): Promise<InstanceinatorInstance> {
     if (!classes) initClasses()
 
@@ -292,6 +293,8 @@ export async function copyInstance(
     ns.display = !!display
 
     ig.initGameAddons = () => gameAddons
+
+    if (preLoad) preLoad(ns)
 
     ig.ready = true
     ig.mainLoader = new sc.StartLoader(classes.CrossCode)
