@@ -26,6 +26,12 @@ export class InstanceinatorInstance {
 
         const displayType = value ? 'initial' : 'none'
         this.ig.system.inputDom.style.display = displayType
+
+        if (value) {
+            this.ig.music.resume(0.5)
+        } else {
+            this.ig.music.pause(0.5)
+        }
     }
     get display() {
         return this._display
@@ -108,7 +114,12 @@ export function injectInstance() {
     })
 
     cursorFix()
+    modmanagerFix()
+    dialogFix()
+    musicFix()
+}
 
+function modmanagerFix() {
     /* fix modmanager crashes */
     modmanager.gui.MenuList.inject({
         reloadEntries() {
@@ -161,7 +172,19 @@ export function injectInstance() {
             })
         },
     })
+}
 
+function cursorFix() {
+    const sheet = [...document.styleSheets].find(sheet => sheet.href?.endsWith('game/page/game-base.css'))
+    if (!sheet) return
+    for (const rule of sheet.cssRules) {
+        if ('selectorText' in rule && typeof rule.selectorText == 'string' && rule.selectorText.startsWith('#game')) {
+            rule.selectorText = rule.selectorText.replace(/#game/, '[id^="game"]')
+        }
+    }
+}
+
+function dialogFix() {
     const backup = sc.Dialogs.showChoiceDialog
     sc.Dialogs.showChoiceDialog = (...args) => {
         // @ts-expect-error
@@ -177,12 +200,12 @@ export function injectInstance() {
         sc.Dialogs.id = undefined
     }
 }
-function cursorFix() {
-    const sheet = [...document.styleSheets].find(sheet => sheet.href?.endsWith('game/page/game-base.css'))
-    if (!sheet) return
-    for (const rule of sheet.cssRules) {
-        if ('selectorText' in rule && typeof rule.selectorText == 'string' && rule.selectorText.startsWith('#game')) {
-            rule.selectorText = rule.selectorText.replace(/#game/, '[id^="game"]')
-        }
-    }
+
+function musicFix() {
+    ig.Music.inject({
+        play(track, fadeOut, fadeIn, volume, stopOnEnd) {
+            if (instanceinator.instances[instanceinator.id]?.display === false) return
+            this.parent(track, fadeOut, fadeIn, volume, stopOnEnd)
+        },
+    })
 }
