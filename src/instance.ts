@@ -64,6 +64,7 @@ declare global {
     namespace ig {
         interface Game {
             scheduledTasks: (() => void)[]
+            nextScheduledTasks: (() => void)[]
         }
     }
 }
@@ -81,11 +82,13 @@ export function injectInstance() {
     ig.Game.inject({
         init() {
             this.scheduledTasks = []
+            this.nextScheduledTasks = []
             this.parent()
         },
         update() {
             for (const task of this.scheduledTasks) task()
-            this.scheduledTasks = []
+            this.scheduledTasks = this.nextScheduledTasks
+            this.nextScheduledTasks = []
 
             this.parent()
         },
