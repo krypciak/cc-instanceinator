@@ -62,7 +62,10 @@ class Instanceinator {
     appendListeners: ((id: number) => void)[] = []
     deleteListeners: ((id: number) => void)[] = []
 
-    labelDrawClasses: (new (instance: InstanceinatorInstance) => LabelDrawClass)[] = [IdLabelDrawClass, FpsLabelDrawClass]
+    labelDrawClasses: (new (instance: InstanceinatorInstance) => LabelDrawClass)[] = [
+        IdLabelDrawClass,
+        FpsLabelDrawClass,
+    ]
 
     resetInstanceIdCounter() {
         if (Object.keys(instanceinator.instances).length != 1)
