@@ -25,6 +25,22 @@ Object.defineProperty(window.console, 'error', {
                     this._instanceId = instanceinator.id
                     if (orig) orig.call(this, ...args)
                 }
+
+                // const origInject = ret.inject
+                // ret.inject = function (a) {
+                //     origInject.call(this, a)
+                //
+                //     let obj: any = {}
+                //     Error.captureStackTrace(obj, ret.inject)
+                //     let stack: string = obj.stack
+                //     stack = stack.substring('Error'.length).trimStart().substring('at'.length).trimStart()
+                //     let lastIndex = stack.indexOf('\n')
+                //     stack = stack.substring(0, lastIndex == -1 ? stack.length : lastIndex)
+                //
+                //     if (!stack) stack = obj.stack
+                //     console.log('inject', injectCount++, stack)
+                // }
+
                 return ret as any
             }
 
