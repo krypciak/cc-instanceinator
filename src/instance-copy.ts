@@ -4,6 +4,13 @@ const ObjectKeysT: <K extends string | number | symbol, V>(object: Record<K, V>)
 
 type SetFunc = (name: string, to?: any) => void
 
+interface StartLoader extends sc.StartLoader {
+    readyCallback?: () => void
+}
+interface StartLoaderConstructor extends ImpactClass<StartLoader> {
+    new (gameClass: sc.CrossCodeConstructor): StartLoader
+}
+
 let classes: ReturnType<typeof initClasses>
 function initClasses() {
     const System: ig.SystemConstructor = ig.System.extend({
@@ -36,10 +43,32 @@ function initClasses() {
             this.renderer = new (ig.classIdToClass[this.renderer.classId] as unknown as ig.GuiRendererConstructor)()
         },
     })
+    const CommonEvents: sc.CommonEventsConstructor = sc.CommonEvents.extend({
+        _loadCommonEvents() {
+            const orig = instanceinator.instances[0].sc.commonEvents
+            this.events = orig.events
+            this.eventsByType = orig.eventsByType
+        },
+    })
+    const QuestModel: sc.QuestModelConstructor = sc.QuestModel.extend({
+        _loadStaticQuests() {
+            this.staticQuests = instanceinator.instances[0].sc.quests.staticQuests
+        },
+    })
+    const StartLoader: StartLoaderConstructor = sc.StartLoader.extend({
+        onEnd() {
+            this.parent()
+            this.readyCallback!()
+        },
+    })
+
     const classes1 = {
         System,
         CrossCode,
         Gui,
+        CommonEvents,
+        QuestModel,
+        StartLoader,
     }
     classes = classes1
     return classes1
@@ -188,12 +217,11 @@ function afterApplyIg(
     igset('input', new ig.Input())
     igset('music', new ig.Music())
     igset('imageAtlas')
-    // igset('imageAtlas', new ig.ImageAtlas())
     igset('spritePool', new ig.SpritePool())
 
     /* addons */
     igset('gamepad')
-    igset('storage', new ig.Storage())
+    igset('storage')
     igset('bgm', new ig.Bgm())
     igset('camera', new ig.Camera())
     igset('rumble', new ig.Rumble())
@@ -252,8 +280,8 @@ function afterApplySc(sc: any, scset: SetFunc, scToInit: string[], gameAddons: a
     scset('bounceSwitchGroups', new sc.BounceSwitchGroups())
     scset('inputForcer', new sc.InputForcer())
     scset('savePreset')
-    scset('quests', new sc.QuestModel())
-    scset('commonEvents', new sc.CommonEvents())
+    scset('quests', new classes.QuestModel())
+    scset('commonEvents', new classes.CommonEvents())
     scset('voiceActing')
     scset('credits', new sc.CreditsManager())
     scset('arena', new sc.Arena())
@@ -297,19 +325,18 @@ export async function copyInstance(
     if (preLoad) preLoad(ns)
 
     ig.ready = true
-    ig.mainLoader = new sc.StartLoader(classes.CrossCode)
-    ig.mainLoader.load()
+    const loader = new classes.StartLoader(classes.CrossCode)
+    ig.mainLoader = loader
 
+    const promise = new Promise<void>(res => {
+        loader.readyCallback = res
+    })
+    loader.load()
     prevInst.apply()
 
-    await new Promise<void>(res => {
-        const id = setInterval(() => {
-            if (ig.ready) {
-                res()
-                clearInterval(id)
-            }
-        }, 100)
-    })
+    await promise
+
+    loader.readyCallback = undefined
 
     instanceinator.append(ns)
     return ns
