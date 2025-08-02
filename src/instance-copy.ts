@@ -31,6 +31,21 @@ function initClasses() {
     })
     const CrossCode: sc.CrossCodeConstructor = sc.CrossCode.extend({
         init() {
+            this.addons = {
+                all: [],
+                levelLoadStart: [],
+                levelLoaded: [],
+                teleport: [],
+                preUpdate: [],
+                postUpdate: [],
+                deferredUpdate: [],
+                preDraw: [],
+                midDraw: [],
+                postDraw: [],
+                varsChanged: [],
+                reset: [],
+                windowFocusChanged: [],
+            }
             this.parent()
             this.events = new ig.EventManager()
             this.renderer = new ig.Renderer2d()
