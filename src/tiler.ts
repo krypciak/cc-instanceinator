@@ -1,3 +1,4 @@
+import { runTasks } from './inst-util'
 import { InstanceinatorInstance } from './instance'
 
 export function getDisplayInstances() {
@@ -27,13 +28,10 @@ export function retile() {
     // }
 
     function callSetDisplaySize() {
-        const prevInst = instanceinator.instances[instanceinator.id]
-        for (const inst of displayInsts) {
+        runTasks(displayInsts, () => {
             if (!sc.options) return
-            inst.apply()
             sc.options._setDisplaySize()
-        }
-        prevInst.apply()
+        })
     }
 
     displayInsts = displayInsts.sort((a, b) => a.id - b.id)

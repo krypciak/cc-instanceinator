@@ -1,0 +1,44 @@
+import type { InstanceinatorInstance } from './instance'
+
+export function scheduleTask<T>(inst: InstanceinatorInstance, task: () => Promise<T> | T): Promise<T> {
+    return new Promise<T>(resolve => {
+        inst.ig.game.scheduledTasks.push(async () => {
+            resolve(await task())
+        })
+    })
+}
+
+export function scheduleNextTask<T>(inst: InstanceinatorInstance, task: () => Promise<T> | T): Promise<T> {
+    return new Promise<T>(resolve => {
+        inst.ig.game.nextScheduledTasks.push(async () => {
+            resolve(await task())
+        })
+    })
+}
+
+export function wrap<T>(func: () => T): T {
+    const prevId = instanceinator.id
+    const ret = func()
+    instanceinator.instances[prevId].apply()
+    return ret
+}
+
+export function runTask<T>(inst: InstanceinatorInstance, task: () => T): T {
+    if (instanceinator.id == inst.id) {
+        return task()
+    } else {
+        return wrap(() => {
+            inst.apply()
+            return task()
+        })
+    }
+}
+
+export function runTasks<T>(insts: InstanceinatorInstance[], task: (i: number) => T): T[] {
+    return wrap(() => {
+        return insts.map((inst, i) => {
+            inst.apply()
+            return task(i)
+        })
+    })
+}

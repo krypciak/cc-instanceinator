@@ -1,3 +1,4 @@
+import { runTask } from './inst-util'
 import { InstanceinatorInstance } from './instance'
 
 const ObjectKeysT: <K extends string | number | symbol, V>(object: Record<K, V>) => K[] = Object.keys as any
@@ -325,29 +326,29 @@ export async function copyInstance(
     const { sc, scset, scToInit } = initSc(s, gameAddons)
     const { modmanager } = initModManager(s)
 
-    const prevInst = instanceinator.instances[instanceinator.id]
-
     const ns = new InstanceinatorInstance(ig, sc, modmanager, name, display, forceDraw)
-    ns.apply()
+    let promise!: Promise<void>
+    let loader!: InstanceType<typeof classes.StartLoader>
 
-    afterApplyIg(ig, igset, igToInit, s, ns)
-    afterApplySc(sc, scset, scToInit, gameAddons)
+    runTask(ns, () => {
+        afterApplyIg(ig, igset, igToInit, s, ns)
+        afterApplySc(sc, scset, scToInit, gameAddons)
 
-    ns.display = !!display
+        ns.display = !!display
 
-    ig.initGameAddons = () => gameAddons
+        ig.initGameAddons = () => gameAddons
 
-    if (preLoad) preLoad(ns)
+        if (preLoad) preLoad(ns)
 
-    ig.ready = true
-    const loader = new classes.StartLoader(classes.CrossCode)
-    ig.mainLoader = loader
+        ig.ready = true
+        loader = new classes.StartLoader(classes.CrossCode)
+        ig.mainLoader = loader
 
-    const promise = new Promise<void>(res => {
-        loader.readyCallback = res
+        promise = new Promise<void>(res => {
+            loader.readyCallback = res
+        })
+        loader.load()
     })
-    loader.load()
-    prevInst.apply()
 
     await promise
 

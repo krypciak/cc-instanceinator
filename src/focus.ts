@@ -1,3 +1,5 @@
+import { runTask } from './inst-util'
+
 declare global {
     namespace ig {
         interface Input {
@@ -9,10 +11,9 @@ export function injectFocus() {
     const replace = function (this: any, ...args: any) {
         const inst = instanceinator.instances[this._instanceId]
         if (inst?.display) {
-            const prevInst = instanceinator.instances[instanceinator.id]
-            inst.apply()
-            this.parent(...args)
-            prevInst.apply()
+            runTask(inst, () => {
+                this.parent(...args)
+            })
         }
     }
     ig.Input.inject({
