@@ -23,7 +23,7 @@ Object.defineProperty(window.console, 'error', {
                 const orig = ret.prototype.init
                 ret.prototype.init = function (...args) {
                     this._instanceId = instanceinator.id
-                    if (orig) orig.call(this, ...args)
+                    orig?.call(this, ...args)
                 }
 
                 // const origInject = ret.inject

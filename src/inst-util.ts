@@ -42,3 +42,17 @@ export function runTasks<T>(insts: InstanceinatorInstance[], task: (i: number) =
         })
     })
 }
+
+export function wait(inst: InstanceinatorInstance, seconds: number): Promise<void> {
+    const start = Date.now()
+    const milis = seconds * 1000
+    return new Promise<void>(resolve => {
+        function loop() {
+            scheduleNextTask(inst, () => {
+                if (Date.now() - start >= milis) resolve()
+                else loop()
+            })
+        }
+        loop()
+    })
+}
