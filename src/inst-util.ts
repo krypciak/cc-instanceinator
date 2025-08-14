@@ -16,6 +16,12 @@ export function scheduleNextTask<T>(inst: InstanceinatorInstance, task: () => Pr
     })
 }
 
+export function scheduleTasks<T>(insts: InstanceinatorInstance[], task: (i: number) => T): Promise<T[]> {
+    return wrap(() => {
+        return Promise.all(insts.map((inst, i) => scheduleTask(inst, () => task(i))))
+    })
+}
+
 export function wrap<T>(func: () => T): T {
     const prevId = instanceinator.id
     const ret = func()
