@@ -43,7 +43,7 @@ export class FpsLabelDrawClass implements LabelDrawClass {
 
     draw(y: number) {
         if (!instanceinator.displayFps) return y
-        const time = Date.now()
+        const time = performance.now()
 
         let timeDiff = time - this.lastDrawTime
         if (this.lastDrawTime == 0) timeDiff = 0
