@@ -6,7 +6,7 @@ startCrossnode({
     ccloader2: true,
     nukeImageStack: true,
     
-    modWhitelist: ['cc-instanceinator'],
+    modWhitelist: ['cc-instanceinator', 'ccmodmanager'],
     extensionWhitelist: [],
     modTestWhitelist: ['cc-instanceinator'],
 })

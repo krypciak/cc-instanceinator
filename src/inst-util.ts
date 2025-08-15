@@ -8,9 +8,9 @@ export function scheduleTask<T>(inst: InstanceinatorInstance, task: () => Promis
     })
 }
 
-export function scheduleNextTask<T>(inst: InstanceinatorInstance, task: () => Promise<T> | T): Promise<T> {
+export function schedulePostTask<T>(inst: InstanceinatorInstance, task: () => Promise<T> | T): Promise<T> {
     return new Promise<T>(resolve => {
-        inst.ig.game.nextScheduledTasks.push(async () => {
+        inst.ig.game.postScheduledTasks.push(async () => {
             resolve(await task())
         })
     })
@@ -54,7 +54,7 @@ export function wait(inst: InstanceinatorInstance, seconds: number): Promise<voi
     const milis = seconds * 1000
     return new Promise<void>(resolve => {
         function loop() {
-            scheduleNextTask(inst, () => {
+            schedulePostTask(inst, () => {
                 if (Date.now() - start >= milis) resolve()
                 else loop()
             })
