@@ -90,6 +90,9 @@ export function injectInstance() {
             this.scheduledTasks = []
 
             this.parent()
+        },
+        deferredUpdate() {
+            this.parent()
 
             for (const task of this.postScheduledTasks) task()
             this.postScheduledTasks = []
