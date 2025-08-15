@@ -18,22 +18,21 @@ export class IdLabelDrawClass implements LabelDrawClass {
 
 export class ValueAverageOverTime {
     private values: number[] = []
-    private avg: number = 0
+    private sum: number = 0
 
     constructor(public valueInterval: number) {}
 
     pushValue(v: number) {
-        this.avg += v / this.valueInterval
+        this.sum += v
         if (this.values.length >= this.valueInterval) {
-            this.avg -= this.values[0] / this.valueInterval
+            this.sum -= this.values[0]
             this.values.splice(0, 1)
         }
         this.values.push(v)
     }
 
     getAverage(): number {
-        if (this.values.length == this.valueInterval) return this.avg
-        return this.avg * (this.valueInterval / this.values.length)
+        return this.sum / this.values.length
     }
 }
 
