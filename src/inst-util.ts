@@ -16,6 +16,14 @@ export function schedulePostTask<T>(inst: InstanceinatorInstance, task: () => Pr
     })
 }
 
+export function scheduleNextTask<T>(inst: InstanceinatorInstance, task: () => Promise<T> | T): Promise<T> {
+    return new Promise<T>(resolve => {
+        inst.ig.game.nextScheduledTasks.push(async () => {
+            resolve(await task())
+        })
+    })
+}
+
 export function scheduleTasks<T>(insts: InstanceinatorInstance[], task: (i: number) => T): Promise<T[]> {
     return wrap(() => {
         return Promise.all(insts.map((inst, i) => scheduleTask(inst, () => task(i))))
@@ -54,7 +62,7 @@ export function wait(inst: InstanceinatorInstance, seconds: number): Promise<voi
     const milis = seconds * 1000
     return new Promise<void>(resolve => {
         function loop() {
-            schedulePostTask(inst, () => {
+            scheduleNextTask(inst, () => {
                 if (Date.now() - start >= milis) resolve()
                 else loop()
             })
