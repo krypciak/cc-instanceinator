@@ -12,8 +12,8 @@ importers:
         specifier: ^3.5.30
         version: 3.5.30
       '@types/node':
-        specifier: ^11.15.54
-        version: 11.15.54
+        specifier: ^24.3.0
+        version: 24.3.0
       '@typescript-eslint/eslint-plugin':
         specifier: ^7.16.0
         version: 7.16.0(@typescript-eslint/parser@7.16.0(eslint@8.57.0)(typescript@5.5.3))(eslint@8.57.0)(typescript@5.5.3)
@@ -237,8 +237,8 @@ packages:
   '@types/jquery@3.5.30':
     resolution: {integrity: sha512-nbWKkkyb919DOUxjmRVk8vwtDb0/k8FKncmUKFi+NY+QXqWltooxTrswvz4LspQwxvLdvzBN1TImr6cw3aQx2A==}
 
-  '@types/node@11.15.54':
-    resolution: {integrity: sha512-1RWYiq+5UfozGsU6MwJyFX6BtktcT10XRjvcAQmskCtMcW3tPske88lM/nHv7BQG1w9KBXI1zPGuu5PnNCX14g==}
+  '@types/node@24.3.0':
+    resolution: {integrity: sha512-aPTXCrfwnDLj4VvXrm+UUCQjNEvJgNA8s5F1cvwQU+3KNltTOkBm1j30uNLyqqPNe7gE3KFzImYoZEfLhp4Yow==}
 
   '@types/semver@6.2.7':
     resolution: {integrity: sha512-blctEWbzUFzQx799RZjzzIdBJOXmE37YYEyDtKkx5Dg+V7o/zyyAxLPiI98A2jdTtDgxZleMdfV+7p8WbRJ1OQ==}
@@ -736,6 +736,9 @@ packages:
     version: 0.0.1
     engines: {node: '>=10.0.0'}
 
+  undici-types@7.10.0:
+    resolution: {integrity: sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag==}
+
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
@@ -879,7 +882,9 @@ snapshots:
     dependencies:
       '@types/sizzle': 2.3.8
 
-  '@types/node@11.15.54': {}
+  '@types/node@24.3.0':
+    dependencies:
+      undici-types: 7.10.0
 
   '@types/semver@6.2.7': {}
 
@@ -1394,8 +1399,10 @@ snapshots:
   ultimate-crosscode-typedefs@https://codeload.github.com/krypciak/ultimate-crosscode-typedefs/tar.gz/c1e0119e071409f30aad473dbdcb71d0055a0bae:
     dependencies:
       '@types/jquery': 1.10.45
-      '@types/node': 11.15.54
+      '@types/node': 24.3.0
       '@types/semver': 6.2.7
+
+  undici-types@7.10.0: {}
 
   uri-js@4.4.1:
     dependencies:

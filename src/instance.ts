@@ -38,11 +38,8 @@ export class InstanceinatorInstance {
     }
 
     apply() {
-        // @ts-expect-error
         global.ig = window.ig = this.ig
-        // @ts-expect-error
         global.sc = window.sc = this.sc
-        // @ts-expect-error
         global.modmanager = window.modmanager = this.modmanager
         instanceinator.id = this.id
     }
