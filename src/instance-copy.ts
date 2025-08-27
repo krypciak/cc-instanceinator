@@ -265,7 +265,7 @@ function afterApplyIg(
     for (const k of igToInit) igset(k)
 }
 
-function afterApplySc(sc: any, scset: SetFunc, scToInit: string[], gameAddons: any[]) {
+function afterApplySc(sc: any, scset: SetFunc, scToInit: string[], s: InstanceinatorInstance, gameAddons: any[]) {
     gameAddons.push(new sc.VersionTracker())
     scset('globalinput', new sc.GlobalInput())
     scset('fontsystem', new sc.FontSystem())
@@ -301,6 +301,7 @@ function afterApplySc(sc: any, scset: SetFunc, scToInit: string[], gameAddons: a
     scset('voiceActing')
     scset('credits', new sc.CreditsManager())
     scset('arena', new sc.Arena())
+    sc.arena.cups = s.sc.arena.cups
     scset('gamesense')
     scset('betaControls', new sc.BetaControls())
 
@@ -332,7 +333,7 @@ export async function copyInstance(
 
     runTask(ns, () => {
         afterApplyIg(ig, igset, igToInit, s, ns)
-        afterApplySc(sc, scset, scToInit, gameAddons)
+        afterApplySc(sc, scset, scToInit, s, gameAddons)
 
         ns.display = !!display
 
