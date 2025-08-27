@@ -8,9 +8,10 @@ import { injectFocus } from './focus'
 import { injectCacheableFix } from './cachable-fix'
 import { copyInstance } from './instance-copy'
 import { registerOpts } from './options'
+import { FpsLabelDrawClass, IdLabelDrawClass, LabelDrawClass } from './label-draw'
+import { injectImageAtlasFix } from './image-atlas-fix'
 
 import './class-id-to-class'
-import { FpsLabelDrawClass, IdLabelDrawClass, LabelDrawClass } from './label-draw'
 
 export default class CCInstanceinator implements PluginClass {
     static dir: string
@@ -33,12 +34,14 @@ export default class CCInstanceinator implements PluginClass {
         injectTiling()
         injectFocus()
         injectCacheableFix()
+        injectImageAtlasFix()
+
         if (window.crossnode?.options.test) {
             import('./tests')
         }
-    }
-    async poststart() {
-        instanceinator.append(new InstanceinatorInstance(ig, sc, window.modmanager, 'base', true))
+
+        const baseInst = new InstanceinatorInstance(ig, sc, window.modmanager, 'base', true)
+        instanceinator.append(baseInst)
     }
 }
 

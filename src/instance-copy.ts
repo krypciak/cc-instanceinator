@@ -232,7 +232,7 @@ function afterApplyIg(
     )
     igset('input', new ig.Input())
     igset('music', new ig.Music())
-    igset('imageAtlas', new ig.ImageAtlas())
+    igset('imageAtlas')
     igset('spritePool', new ig.SpritePool())
 
     /* addons */

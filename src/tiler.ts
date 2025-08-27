@@ -69,7 +69,9 @@ export function retile() {
         for (let row = 0; row < grid[0]; row++) {
             const inst = displayInsts[itemI]
             if (!inst) break
-            const div = inst.ig.system.inputDom
+            const div = inst.ig.system?.inputDom
+            if (!div) continue
+
             div.style.position = 'absolute'
             div.style.left = `${row * width + offsetX}px`
             div.style.top = `${column * height + offsetY}px`
