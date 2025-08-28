@@ -45,6 +45,12 @@ export class InstanceinatorInstance {
         instanceinator.id = this.id
     }
 
+    onDelete() {
+        const div = this.ig.system?.inputDom
+        if (div) document.body.removeChild(div)
+
+    }
+
     drawLabels() {
         let y = 0
         for (const clazz of this.labelDrawClasses) {

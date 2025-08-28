@@ -84,8 +84,7 @@ class Instanceinator {
         if (instanceinator.id == instance.id)
             throw new Error(`Cannot delete currently applied instance! id: ${instance.id}`)
 
-        const div = instance.ig.system?.inputDom
-        if (div) document.body.removeChild(div)
+        this.instances[instance.id].onDelete()
 
         delete this.instances[instance.id]
         for (const func of this.deleteListeners) func(instance.id)
