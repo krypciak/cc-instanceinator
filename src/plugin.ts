@@ -58,9 +58,6 @@ class Instanceinator {
     displayId: boolean = false
     displayFps: boolean = false
 
-    appendListeners: ((id: number) => void)[] = []
-    deleteListeners: ((id: number) => void)[] = []
-
     labelDrawClasses: (new (instance: InstanceinatorInstance) => LabelDrawClass)[] = [
         IdLabelDrawClass,
         FpsLabelDrawClass,
@@ -74,12 +71,11 @@ class Instanceinator {
 
     append(instance: InstanceinatorInstance) {
         this.instances[instance.id] = instance
-        for (const func of this.appendListeners) func(instance.id)
         this.retile()
     }
 
     delete(instance: InstanceinatorInstance) {
-        if (!instanceinator.instances[instance.id]) return
+        if (!this.instances[instance.id]) return
         if (instance.id == 0) throw new Error('Cannot delete base instance with id 0!')
         if (instanceinator.id == instance.id)
             throw new Error(`Cannot delete currently applied instance! id: ${instance.id}`)
@@ -87,7 +83,6 @@ class Instanceinator {
         this.instances[instance.id].onDelete()
 
         delete this.instances[instance.id]
-        for (const func of this.deleteListeners) func(instance.id)
         this.retile()
     }
 
