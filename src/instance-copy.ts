@@ -262,7 +262,6 @@ function afterApplyIg(
     igToInit.erase('game')
     igToInit.erase('mainLoader')
     igToInit.erase('vars')
-    for (const k of igToInit) igset(k)
 }
 
 function afterApplySc(sc: any, scset: SetFunc, scToInit: string[], s: InstanceinatorInstance, gameAddons: any[]) {
@@ -310,7 +309,6 @@ function afterApplySc(sc: any, scset: SetFunc, scToInit: string[], s: Instancein
     scset('keyBinderGui', new sc.KeyBinderGui())
 
     scToInit.erase('gui')
-    for (const k of scToInit) scset(k)
 }
 
 export async function copyInstance(
