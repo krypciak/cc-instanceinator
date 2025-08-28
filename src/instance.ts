@@ -49,6 +49,7 @@ export class InstanceinatorInstance {
         const div = this.ig.system?.inputDom
         if (div) document.body.removeChild(div)
 
+        ig.storage.listeners = ig.storage.listeners.filter(listener => (listener as ig.Class)._instanceId != this.id)
     }
 
     drawLabels() {
