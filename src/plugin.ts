@@ -5,11 +5,9 @@ import { Mod1 } from './types'
 import { injectInstance, InstanceinatorInstance } from './instance'
 import { injectTiling, retile } from './tiler'
 import { injectFocus } from './focus'
-import { injectCacheableFix } from './cachable-fix'
 import { copyInstance } from './instance-copy'
 import { registerOpts } from './options'
 import { FpsLabelDrawClass, IdLabelDrawClass, LabelDrawClass } from './label-draw'
-import { injectImageAtlasFix } from './image-atlas-fix'
 
 import './class-id-to-class'
 
@@ -33,8 +31,6 @@ export default class CCInstanceinator implements PluginClass {
         injectInstance()
         injectTiling()
         injectFocus()
-        injectCacheableFix()
-        injectImageAtlasFix()
 
         if (window.crossnode?.options.test) {
             import('./tests')

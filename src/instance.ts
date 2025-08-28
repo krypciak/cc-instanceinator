@@ -1,5 +1,6 @@
 import type {} from 'ccmodmanager/types/gui/gui'
 import { IdLabelDrawClass } from './label-draw'
+import { injectFixes } from './fixes'
 
 export class InstanceinatorInstance {
     id: number
@@ -121,99 +122,5 @@ export function injectInstance() {
         },
     })
 
-    cursorFix()
-    modmanagerFix()
-    dialogFix()
-    musicFix()
-}
-
-function modmanagerFix() {
-    /* fix modmanager crashes */
-    modmanager.gui.MenuList.inject({
-        reloadEntries() {
-            const parent = this.parent
-            instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
-                parent.call(this)
-            })
-        },
-    })
-    modmanager.gui.Menu.inject({
-        hideMenu(afterMenu, nextSubmenu) {
-            const backup = window.setTimeout
-            // @ts-expect-error
-            window.setTimeout = (func: () => void, interval) => {
-                backup(() => {
-                    instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
-                        func()
-                    })
-                }, interval)
-            }
-            this.parent(afterMenu, nextSubmenu)
-            window.setTimeout = backup
-        },
-        showModInstallDialog() {
-            const parent = this.parent
-            instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
-                parent.call(this)
-            })
-        },
-    })
-    modmanager.gui.ListEntry.inject({
-        updateIcon(config) {
-            const parent = this.parent
-            instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
-                parent.call(this, config)
-            })
-        },
-    })
-    modmanager.gui.MultiPageButtonBoxGui.inject({
-        closeMenu() {
-            const parent = this.parent
-            instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
-                parent.call(this)
-            })
-        },
-        refreshPage() {
-            const parent = this.parent
-            instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
-                parent.call(this)
-            })
-        },
-    })
-}
-
-function cursorFix() {
-    const sheet = [...document.styleSheets].find(sheet => sheet.href?.endsWith('game/page/game-base.css'))
-    if (!sheet) return
-    for (const rule of sheet.cssRules) {
-        if ('selectorText' in rule && typeof rule.selectorText == 'string' && rule.selectorText.startsWith('#game')) {
-            rule.selectorText = rule.selectorText.replace(/#game/, '[id^="game"]')
-        }
-    }
-}
-
-function dialogFix() {
-    const backup = sc.Dialogs.showChoiceDialog
-    sc.Dialogs.showChoiceDialog = (...args) => {
-        // @ts-expect-error
-        const id = sc.Dialogs.id
-        if (id === undefined || id == instanceinator.id) return backup(...args)
-
-        instanceinator.instances[id].ig.game.scheduledTasks.push(() => {
-            sc.Model.notifyObserver(modmanager.gui.menu, modmanager.gui.MENU_MESSAGES.UPDATE_ENTRIES)
-            backup(...args)
-        })
-
-        // @ts-expect-error
-        sc.Dialogs.id = undefined
-    }
-}
-
-function musicFix() {
-    ig.Music.inject({
-        play(track, fadeOut, fadeIn, volume, stopOnEnd) {
-            if (instanceinator.instances[instanceinator.id]?.display === false) return
-            this.parent(track, fadeOut, fadeIn, volume, stopOnEnd)
-        },
-    })
+    injectFixes()
 }
