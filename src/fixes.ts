@@ -9,7 +9,6 @@ export function injectFixes() {
     musicFix()
 }
 
-
 declare global {
     namespace ig {
         interface Cacheable {
@@ -80,6 +79,12 @@ function cacheableFix() {
 function imageAtlasFix() {
     ig.ImageAtlas.inject({
         fillFragments() {
+            if (instanceinator.id != 0) return
+            return this.parent()
+        },
+    })
+    ig.ImageAtlasFragment.inject({
+        _fill() {
             const inst = instanceinator.instances[this._instanceId]
             if (!inst) return this.parent()
 
