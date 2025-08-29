@@ -1,4 +1,5 @@
 import { runTask } from './inst-util'
+import { InstanceinatorInstance } from './instance'
 
 export function injectFixes() {
     cacheableFix()
@@ -7,6 +8,7 @@ export function injectFixes() {
     cursorFix()
     dialogFix()
     musicFix()
+    optionModelFix()
 }
 
 declare global {
@@ -94,57 +96,28 @@ function imageAtlasFix() {
 }
 
 function modmanagerFix() {
+    function replace(this: ig.Class, ...args: unknown[]) {
+        return runTask(instanceinator.instances[this._instanceId], () => {
+            // @ts-expect-error
+            return this.parent(...args)
+        })
+    }
     /* fix modmanager crashes */
     modmanager.gui.MenuList.inject({
-        reloadEntries() {
-            const parent = this.parent
-            instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
-                parent.call(this)
-            })
-        },
+        reloadEntries: replace,
     })
     modmanager.gui.Menu.inject({
-        hideMenu(afterMenu, nextSubmenu) {
-            const backup = window.setTimeout
-            // @ts-expect-error
-            window.setTimeout = (func: () => void, interval) => {
-                backup(() => {
-                    instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
-                        func()
-                    })
-                }, interval)
-            }
-            this.parent(afterMenu, nextSubmenu)
-            window.setTimeout = backup
-        },
-        showModInstallDialog() {
-            const parent = this.parent
-            instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
-                parent.call(this)
-            })
-        },
+        showModInstallDialog: replace,
     })
     modmanager.gui.ListEntry.inject({
-        updateIcon(config) {
-            const parent = this.parent
-            instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
-                parent.call(this, config)
-            })
+        updateIcon: replace,
+        tryEnableMod(mod) {
+            return microWrap(() => this.parent(mod))
         },
     })
     modmanager.gui.MultiPageButtonBoxGui.inject({
-        closeMenu() {
-            const parent = this.parent
-            instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
-                parent.call(this)
-            })
-        },
-        refreshPage() {
-            const parent = this.parent
-            instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
-                parent.call(this)
-            })
-        },
+        closeMenu: replace,
+        refreshPage: replace,
     })
 }
 
@@ -158,20 +131,45 @@ function cursorFix() {
     }
 }
 
+const microStack: number[] = []
+function microBegin(depth: number, inst: InstanceinatorInstance = instanceinator.instances[instanceinator.id]) {
+    Promise.resolve().then(() => {
+        microStack.push(instanceinator.id)
+        inst.apply()
+
+        if (depth > 0) microBegin(--depth, inst)
+    })
+}
+function microEnd(depth: number) {
+    Promise.resolve().then(() => {
+        const inst = instanceinator.instances[microStack.pop()!]
+        inst.apply()
+
+        if (depth > 0) microEnd(--depth)
+    })
+}
+
+function microWrap<T>(func: () => T, depth: number = 1, inst?: InstanceinatorInstance) {
+    microBegin(depth, inst)
+    const ret = func()
+    microEnd(depth)
+    return ret
+}
+
 function dialogFix() {
-    const backup = sc.Dialogs.showChoiceDialog
-    sc.Dialogs.showChoiceDialog = (...args) => {
-        // @ts-expect-error
-        const id = sc.Dialogs.id
-        if (id === undefined || id == instanceinator.id) return backup(...args)
-
-        instanceinator.instances[id].ig.game.scheduledTasks.push(() => {
-            sc.Model.notifyObserver(modmanager.gui.menu, modmanager.gui.MENU_MESSAGES.UPDATE_ENTRIES)
-            backup(...args)
-        })
-
-        // @ts-expect-error
-        sc.Dialogs.id = undefined
+    const originalShowChoiceDialog = sc.Dialogs.showChoiceDialog
+    sc.Dialogs.showChoiceDialog = (text, icon, options, callback, disableSubmitSound) => {
+        const id = instanceinator.id
+        return originalShowChoiceDialog(
+            text,
+            icon,
+            options,
+            function (...args) {
+                const inst = instanceinator.instances[id]
+                return runTask(inst, () => microWrap(() => callback(...args), 2, inst))
+            },
+            disableSubmitSound
+        )
     }
 }
 
@@ -180,6 +178,33 @@ function musicFix() {
         play(track, fadeOut, fadeIn, volume, stopOnEnd) {
             if (instanceinator.instances[instanceinator.id]?.display === false) return
             this.parent(track, fadeOut, fadeIn, volume, stopOnEnd)
+        },
+    })
+}
+
+function optionModelFix() {
+    function defineModEnabledProperties(optionModel: sc.OptionModel) {
+        /* simplify decided that it's ok using a completely separate loading stage
+         * (the 'modsLoaded' event that's directly after the main loading stage)
+         * and defining sc.options.values for mod active status then,
+         * so instead of just copying the properties I need to initialize the properties myself */
+        // @ts-expect-error
+        for (const mod of window.inactiveMods.concat(window.activeMods)) {
+            const key = `modEnabled-${mod.name}`
+            Object.defineProperty(optionModel.values, key, {
+                configurable: true,
+                get: () => localStorage.getItem(key) !== 'false',
+                set: value => {
+                    localStorage.setItem(key, Boolean(value).toString())
+                },
+            })
+        }
+    }
+
+    sc.OptionModel.inject({
+        init() {
+            this.parent()
+            defineModEnabledProperties(this)
         },
     })
 }
