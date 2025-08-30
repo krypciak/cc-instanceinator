@@ -85,7 +85,7 @@ function imageAtlasFix() {
         }
         return 0
     }
-    
+
     ig.ImageAtlas.inject({
         fillFragments() {
             if (instanceinator.id != getPrimaryInstanceId()) return
@@ -103,9 +103,11 @@ function imageAtlasFix() {
 }
 
 function modmanagerFix() {
-    function replace(this: ig.Class, ...args: unknown[]) {
+    function replace<T extends ig.Class, E extends unknown[], R>(
+        this: T & { parent(this: T, ...args: E): R },
+        ...args: E
+    ): R {
         return runTask(instanceinator.instances[this._instanceId], () => {
-            // @ts-expect-error
             return this.parent(...args)
         })
     }
@@ -191,12 +193,13 @@ function musicFix() {
 
 function optionModelFix() {
     function defineModEnabledProperties(optionModel: sc.OptionModel) {
+        // @ts-ignore
+        const mods = window.inactiveMods.concat(window.activeMods)
         /* simplify decided that it's ok using a completely separate loading stage
          * (the 'modsLoaded' event that's directly after the main loading stage)
          * and defining sc.options.values for mod active status then,
          * so instead of just copying the properties I need to initialize the properties myself */
-        // @ts-expect-error
-        for (const mod of window.inactiveMods.concat(window.activeMods)) {
+        for (const mod of mods) {
             const key = `modEnabled-${mod.name}`
             Object.defineProperty(optionModel.values, key, {
                 configurable: true,
