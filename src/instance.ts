@@ -17,13 +17,13 @@ export class InstanceinatorInstance {
         this.id = instanceinator.idCounter
         instanceinator.idCounter++
 
-        if (!this.display && !forceDraw) this.ig.perf.draw = false
-
         this.labelDrawClasses = instanceinator.labelDrawClasses.map(clazz => new clazz(this))
     }
 
     set display(value: boolean) {
         this._display = value
+
+        this.ig.perf.draw = this.display || this.forceDraw
 
         const displayType = value ? 'initial' : 'none'
         this.ig.system.inputDom.style.display = displayType

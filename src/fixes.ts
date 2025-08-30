@@ -79,9 +79,16 @@ function cacheableFix() {
 }
 
 function imageAtlasFix() {
+    function getPrimaryInstanceId() {
+        for (const id in instanceinator.instances) {
+            if (instanceinator.instances[id].ig.perf.draw) return id
+        }
+        return 0
+    }
+    
     ig.ImageAtlas.inject({
         fillFragments() {
-            if (instanceinator.id != 0) return
+            if (instanceinator.id != getPrimaryInstanceId()) return
             return this.parent()
         },
     })
