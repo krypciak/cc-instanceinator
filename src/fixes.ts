@@ -85,7 +85,7 @@ function imageAtlasFix() {
         }
         return 0
     }
-    
+
     ig.ImageAtlas.inject({
         fillFragments() {
             if (instanceinator.id != getPrimaryInstanceId()) return
@@ -103,9 +103,11 @@ function imageAtlasFix() {
 }
 
 function modmanagerFix() {
-    function replace(this: ig.Class, ...args: unknown[]) {
+    function replace<T extends ig.Class, E extends unknown[], R>(
+        this: T & { parent(this: T, ...args: E): R },
+        ...args: E
+    ): R {
         return runTask(instanceinator.instances[this._instanceId], () => {
-            // @ts-expect-error
             return this.parent(...args)
         })
     }
