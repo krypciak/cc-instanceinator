@@ -24,7 +24,7 @@ export class InstanceinatorInstance {
         this._display = value
 
         this.ig.perf.draw =
-            (this.display || this.forceDraw) && (!window.crossnode || !!window.crossnode.options?.nukeImageStack)
+            (this.display || this.forceDraw) && (!window.crossnode || !window.crossnode.options?.nukeImageStack)
 
         const displayType = value ? 'initial' : 'none'
         this.ig.system.inputDom.style.display = displayType
