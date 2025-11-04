@@ -157,9 +157,7 @@ function initIg(s: InstanceinatorInstance, gameAddons: any[]) {
     ig.EntityPool = { ...s.ig.EntityPool }
     ig.EntityPool.drainAllPools()
 
-    ig.ScreenBufferPool = { ...s.ig.ScreenBufferPool }
-    ig.ScreenBufferPool.handleList = []
-    ig.ScreenBufferPool.freeBuffers = []
+    ig.ScreenBufferPool = { ...s.ig.ScreenBufferPool, handleList: [], freeBuffers: [] }
 
     return { ig, igset, igToInit }
 }
@@ -192,8 +190,7 @@ function initSc(s: InstanceinatorInstance, gameAddons: any[]) {
     scset('version')
 
     /* memory leak fixes */
-    sc.TeleportCentralMap = { ...s.sc.TeleportCentralMap }
-    sc.TeleportCentralMap.fields = {}
+    sc.TeleportCentralMap = { ...s.sc.TeleportCentralMap, fields: {} }
 
     /* poolEntries from ig.GuiStepPool */
     ig.GuiTransform = ig.GuiTransform.extend({})
@@ -222,6 +219,19 @@ function initModManager(s: InstanceinatorInstance) {
         gui,
     }
     return { modmanager }
+}
+
+function initNax(s: InstanceinatorInstance) {
+    if (!s.nax) return { nax: undefined }
+
+    const nax: typeof window.nax = {
+        ccuilib: { ...s.nax.ccuilib },
+    }
+    {
+        const orig = s.nax.ccuilib.QuickRingMenuWidgets
+        nax.ccuilib.QuickRingMenuWidgets = { ...orig, observers: [...orig.observers], widgets: { ...orig.widgets } }
+    }
+    return { nax }
 }
 
 function createDomElements(id: number) {
@@ -373,8 +383,9 @@ export async function copyInstance(
     const { ig, igset, igToInit } = initIg(s, gameAddons)
     const { sc, scset, scToInit } = initSc(s, gameAddons)
     const { modmanager } = initModManager(s)
+    const { nax } = initNax(s)
 
-    const ns = new InstanceinatorInstance(ig, sc, modmanager, name, display, forceDraw)
+    const ns = new InstanceinatorInstance(ig, sc, modmanager, nax, name, display, forceDraw)
     let promise!: Promise<void>
     let loader!: InstanceType<typeof classes.StartLoader>
 

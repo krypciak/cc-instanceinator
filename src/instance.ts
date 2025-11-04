@@ -10,6 +10,7 @@ export class InstanceinatorInstance {
         public ig: typeof window.ig,
         public sc: typeof window.sc,
         public modmanager: typeof window.modmanager,
+        public nax: typeof window.nax | undefined,
         public name: string = 'default',
         private _display: boolean = true,
         public forceDraw: boolean = false
@@ -43,6 +44,8 @@ export class InstanceinatorInstance {
         global.ig = window.ig = this.ig
         global.sc = window.sc = this.sc
         global.modmanager = window.modmanager = this.modmanager
+        // @ts-expect-error
+        global.nax = window.nax = this.nax
         instanceinator.id = this.id
     }
 

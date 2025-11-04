@@ -38,7 +38,7 @@ export default class CCInstanceinator implements PluginClass {
             import('./tests')
         }
 
-        const baseInst = new InstanceinatorInstance(ig, sc, window.modmanager, 'base', true)
+        const baseInst = new InstanceinatorInstance(ig, sc, window.modmanager, window.nax, 'base', true)
         instanceinator.append(baseInst)
     }
 
