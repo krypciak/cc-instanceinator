@@ -51,6 +51,10 @@ export class InstanceinatorInstance {
         if (div) document.body.removeChild(div)
 
         ig.storage.listeners = ig.storage.listeners.filter(listener => (listener as ig.Class)._instanceId != this.id)
+
+        for (const handle of ig.soundManager.soundHandles as ig.SoundHandleWebAudio[]) {
+            if (handle._instanceId == this.id) handle.stop()
+        }
     }
 
     drawLabels() {

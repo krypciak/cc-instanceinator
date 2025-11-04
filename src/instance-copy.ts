@@ -51,6 +51,10 @@ function initClasses() {
             this.events = new ig.EventManager()
             this.renderer = new ig.Renderer2d()
             this.physics = new ig.Physics()
+
+            // fix memory leaks
+            ig.gui.removeGuiElement(window.testGui)
+            window.testGui = undefined as any
         },
     })
     const Gui: ig.GuiConstructor = ig.Gui.extend({
@@ -77,6 +81,16 @@ function initClasses() {
             this.readyCallback!()
         },
     })
+    const ExtensionManager: ig.ExtensionManagerConstructor = ig.ExtensionManager.extend({
+        init() {
+            this.parent()
+        },
+        load() {
+            const orig = instanceinator.instances[0].ig.extensions
+            this.list = orig.list
+            this.enabled = orig.enabled
+        },
+    })
 
     const classes1 = {
         System,
@@ -85,32 +99,34 @@ function initClasses() {
         CommonEvents,
         QuestModel,
         StartLoader,
+        ExtensionManager,
     }
     classes = classes1
     return classes1
 }
 
 function initIg(s: InstanceinatorInstance, gameAddons: any[]) {
-    const ig: any = {}
+    const ig: typeof window.ig = {} as any
+    const igAny = ig as any
     const igToInit: string[] = []
     for (const key in s.ig) {
         if (key[0] == key[0].toUpperCase()) {
-            ig[key] = s.ig[key as keyof typeof s.ig]
+            igAny[key] = s.ig[key as keyof typeof s.ig]
         } else {
             const val = s.ig[key as keyof typeof s.ig]
             if (typeof val === 'object') {
                 igToInit.push(key)
             } else {
-                ig[key] = val
+                igAny[key] = val
             }
         }
     }
 
     const igset: SetFunc = (name, to) => {
-        ig[name] = to ?? s.ig[name as keyof typeof s.ig]
+        igAny[name] = to ?? s.ig[name as keyof typeof s.ig]
         igToInit.erase(name)
-        if (ig[name] instanceof ig.GameAddon) {
-            gameAddons.push(ig[name])
+        if (igAny[name] instanceof ig.GameAddon) {
+            gameAddons.push(igAny[name])
         }
     }
 
@@ -131,40 +147,51 @@ function initIg(s: InstanceinatorInstance, gameAddons: any[]) {
     igset('langFileList')
     igset('cacheList')
     igset('dataBrowser')
-    igset('extensions')
+    igset('extensions', new classes.ExtensionManager())
     igset('lang')
     igset('globalSettings')
     igset('terrain')
     igset('soundManager')
 
+    ig.EntityPool = { ...s.ig.EntityPool }
+    ig.EntityPool.drainAllPools()
+
+    ig.ScreenBufferPool = { ...s.ig.ScreenBufferPool }
+    ig.ScreenBufferPool.handleList = []
+    ig.ScreenBufferPool.freeBuffers = []
+
     return { ig, igset, igToInit }
 }
 
 function initSc(s: InstanceinatorInstance, gameAddons: any[]) {
-    const sc: any = {}
+    const sc: typeof window.sc = {} as any
+    const scAny = sc as any
     const scToInit: string[] = []
     for (const key in s.sc) {
         if (key[0] == key[0].toUpperCase()) {
-            sc[key] = s.sc[key as keyof typeof s.sc]
+            scAny[key] = s.sc[key as keyof typeof s.sc]
         } else {
             const val = s.sc[key as keyof typeof s.sc]
             if (typeof val === 'object') {
                 scToInit.push(key)
             } else {
-                sc[key] = val
+                scAny[key] = val
             }
         }
     }
     const scset: SetFunc = (name, to) => {
-        sc[name] = to ?? s.sc[name as keyof typeof s.sc]
+        scAny[name] = to ?? s.sc[name as keyof typeof s.sc]
         scToInit.erase(name)
-        if (sc[name] instanceof ig.GameAddon) {
-            gameAddons.push(sc[name])
+        if (scAny[name] instanceof ig.GameAddon) {
+            gameAddons.push(scAny[name])
         }
     }
 
     scset('skilltree')
     scset('version')
+
+    sc.TeleportCentralMap = { ...s.sc.TeleportCentralMap }
+    sc.TeleportCentralMap.fields = {}
 
     return { sc, scset, scToInit }
 }
@@ -210,7 +237,7 @@ function createDomElements(id: number) {
 }
 
 function afterApplyIg(
-    ig: any,
+    ig: typeof window.ig,
     igset: SetFunc,
     igToInit: string[],
     s: InstanceinatorInstance,
@@ -246,8 +273,10 @@ function afterApplyIg(
     igset('guiImage', new ig.GuiImage())
     igset('light', new ig.Light())
     igset('weather', new ig.Weather())
+    // @ts-expect-error
     igset('navigation', new ig.Navigation())
     igset('mapStyle', new ig.MapStyle())
+    // @ts-expect-error
     igset('mapImage', new ig.MapImageManager())
     igset('overlay', new ig.Overlay())
     igset('dreamFx', new ig.DreamFx())
@@ -264,14 +293,23 @@ function afterApplyIg(
     igToInit.erase('vars')
 }
 
-function afterApplySc(sc: any, scset: SetFunc, scToInit: string[], s: InstanceinatorInstance, gameAddons: any[]) {
+function afterApplySc(
+    sc: typeof window.sc,
+    scset: SetFunc,
+    scToInit: string[],
+    s: InstanceinatorInstance,
+    gameAddons: any[]
+) {
+    // @ts-expect-error
     gameAddons.push(new sc.VersionTracker())
     scset('globalinput', new sc.GlobalInput())
     scset('fontsystem', new sc.FontSystem())
     scset('timers', new sc.TimersModel())
     scset('stats', new sc.StatsModel())
+    // @ts-expect-error
     scset('trophies', new sc.TrophyManager())
     scset('autoControl', new sc.AutoControl())
+    // @ts-expect-error
     scset('message', new sc.MessageModel())
     scset('options', new sc.OptionModel())
     scset('quickmodel', new sc.QuickMenuModel())
@@ -285,9 +323,11 @@ function afterApplySc(sc: any, scset: SetFunc, scToInit: string[], s: Instancein
     scset('pvp', new sc.PvpModel())
     scset('newgame')
     scset('enemyBooster', new sc.EnemyBooster())
+    // @ts-expect-error
     scset('gameCode', new sc.GameCode())
     scset('mapInteract', new sc.MapInteract())
     scset('elevatorModel', new sc.ElevatorModel())
+    // @ts-expect-error
     scset('skipInteract', new sc.SkipInteract())
     scset('npcRunner', new sc.NpcRunnerSpawner())
     scset('party', new sc.PartyModel())
