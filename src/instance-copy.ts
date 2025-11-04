@@ -1,5 +1,6 @@
 import { runTask } from './inst-util'
 import { InstanceinatorInstance } from './instance'
+import type {} from 'nax-ccuilib/src/ui/quick-menu/quick-menu-extension'
 
 const ObjectKeysT: <K extends string | number | symbol, V>(object: Record<K, V>) => K[] = Object.keys as any
 
@@ -52,7 +53,7 @@ function initClasses() {
             this.renderer = new ig.Renderer2d()
             this.physics = new ig.Physics()
 
-            // fix memory leaks
+            /* fix memory leaks */
             ig.gui.removeGuiElement(window.testGui)
             window.testGui = undefined as any
         },
@@ -190,8 +191,16 @@ function initSc(s: InstanceinatorInstance, gameAddons: any[]) {
     scset('skilltree')
     scset('version')
 
+    /* memory leak fixes */
     sc.TeleportCentralMap = { ...s.sc.TeleportCentralMap }
     sc.TeleportCentralMap.fields = {}
+
+    /* poolEntries from ig.GuiStepPool */
+    ig.GuiTransform = ig.GuiTransform.extend({})
+    ig.GuiDrawable = ig.GuiDrawable.extend({})
+
+    /* nax-ccuilib  */
+    sc.QuickRingMenu = sc.QuickRingMenu.extend({})
 
     return { sc, scset, scToInit }
 }

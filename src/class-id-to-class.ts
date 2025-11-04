@@ -1,3 +1,5 @@
+import { poststartReached } from './plugin'
+
 export {}
 declare global {
     namespace ig {
@@ -18,7 +20,10 @@ Object.defineProperty(window.console, 'error', {
             const origExtend = window.ig.Class.extend
             ig.Class.extend = function (a) {
                 const ret = origExtend.call(this, a) as ig.ClassConstructor
-                ig.classIdToClass[ret.classId] = ret
+
+                if (!poststartReached) {
+                    ig.classIdToClass[ret.classId] = ret
+                }
 
                 const orig = ret.prototype.init
                 ret.prototype.init = function (...args) {

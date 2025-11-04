@@ -11,6 +11,8 @@ import { FpsLabelDrawClass, IdLabelDrawClass, LabelDrawClass } from './label-dra
 
 import './class-id-to-class'
 
+export let poststartReached = false
+
 export default class CCInstanceinator implements PluginClass {
     static dir: string
     static mod: Mod1
@@ -38,6 +40,10 @@ export default class CCInstanceinator implements PluginClass {
 
         const baseInst = new InstanceinatorInstance(ig, sc, window.modmanager, 'base', true)
         instanceinator.append(baseInst)
+    }
+
+    poststart() {
+        poststartReached = true
     }
 }
 
