@@ -378,6 +378,7 @@ export async function copyInstance(
     preLoad?: (inst: InstanceinatorInstance) => void
 ): Promise<InstanceinatorInstance> {
     if (!classes) initClasses()
+    const origIg = instanceinator.id
 
     const gameAddons: any[] = []
     const { ig, igset, igToInit } = initIg(s, gameAddons)
@@ -413,6 +414,7 @@ export async function copyInstance(
 
     loader.readyCallback = undefined
 
+    instanceinator.instances[origIg].apply()
     instanceinator.append(ns)
     return ns
 }
