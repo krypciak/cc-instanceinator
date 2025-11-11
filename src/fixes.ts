@@ -8,6 +8,7 @@ export function injectFixes() {
     cursorFix()
     dialogFix()
     musicFix()
+    audioFix()
     optionModelFix()
     nwjsFullscreenFix()
 }
@@ -188,6 +189,17 @@ function musicFix() {
         play(track, fadeOut, fadeIn, volume, stopOnEnd) {
             if (instanceinator.instances[instanceinator.id]?.display === false) return
             this.parent(track, fadeOut, fadeIn, volume, stopOnEnd)
+        },
+    })
+}
+
+function audioFix() {
+    ig.SoundManager.inject({
+        requestPlaySoundHandle(groupName, handle) {
+            const inst = instanceinator.instances[instanceinator.id]
+            if (!inst.display) return
+
+            return this.parent(groupName, handle)
         },
     })
 }
