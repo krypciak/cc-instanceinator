@@ -7,6 +7,7 @@
 ### Fixed 
 
 - Don't play sounds from hidden instances
+- Fix sc.PlayerConfig inter-instance coupling
 
 ## [1.0.2] 2025-11-10
 ## [1.0.1] 2025-11-04

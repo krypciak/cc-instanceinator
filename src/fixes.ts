@@ -29,8 +29,12 @@ function cacheableFix() {
         cleaningCache = false
     }
 
-    ig.Cacheable.inject({
-        staticInstantiate(...args) {
+    let ignoreCacheStaticInstantiate = false
+    function createCacheStaticInstantiate<T extends ig.Cacheable>(onCachedFound: (clazz: T) => T) {
+        function cacheStaticInstantiate(this: ig.Cacheable, ...args: any[]) {
+            if (ignoreCacheStaticInstantiate) return null
+            ignoreCacheStaticInstantiate = false
+
             const con = this.constructor as any
             if (!con.cache) {
                 con.cache = {}
@@ -48,14 +52,23 @@ function cacheableFix() {
                 this.cacheKey = cacheKey
                 const cached = con.cache[cacheKey]
                 if (cached) {
-                    cached.onInstanceReused && cached.onInstanceReused()
-                    cached.increaseRef()
-                    return cached
+                    ignoreCacheStaticInstantiate = true
+                    const obj = onCachedFound(cached)
+                    ignoreCacheStaticInstantiate = false
+                    return obj
                 }
             }
             return null
-        },
+        }
+        return cacheStaticInstantiate
+    }
 
+    ig.Cacheable.inject({
+        staticInstantiate: createCacheStaticInstantiate(cached => {
+            cached.onInstanceReused?.()
+            cached.increaseRef()
+            return cached
+        }),
         init() {
             if (this.cacheKey) this.constructor.cache[this.cacheKey] = this
             this.increaseRef()
@@ -70,7 +83,7 @@ function cacheableFix() {
                 throw Error("Call to decreaseRef() results in negative count! Key: '" + this.cacheKey + "'")
 
             if (this.referenceCount == 0 && (!this.cacheKey || cleaningCache)) {
-                this.onCacheCleared && this.onCacheCleared()
+                this.onCacheCleared?.()
                 if (this.cacheKey) this.constructor.cache[this.cacheKey] = null
             }
         },
@@ -78,6 +91,29 @@ function cacheableFix() {
 
     ig.WeatherInstance.inject({ instanceUnique: true })
     ig.EnvParticleSpawner.inject({ instanceUnique: true })
+
+    sc.PlayerConfig.inject({
+        staticInstantiate: createCacheStaticInstantiate((cached: sc.PlayerConfig) => {
+            if (cached._instanceId == instanceinator.id) return cached
+            cached.increaseRef()
+
+            const elementConfigs: sc.PlayerConfig['elementConfigs'] = {} as any
+            for (const elementStr of Object.keys(sc.ELEMENT) as (keyof typeof sc.ELEMENT)[]) {
+                const element = sc.ELEMENT[elementStr]
+                const subConfig = new sc.PlayerSubConfig(elementStr, {})
+                subConfig.actions = cached.elementConfigs[element].actions
+                subConfig.preSkillInit()
+                elementConfigs[element] = subConfig
+            }
+            return new Proxy(cached, {
+                get(target, p, receiver) {
+                    const key = p as keyof sc.PlayerConfig
+                    if (key != 'elementConfigs') return Reflect.get(target, p, receiver)
+                    return elementConfigs
+                },
+            })
+        }),
+    })
 }
 
 function imageAtlasFix() {
