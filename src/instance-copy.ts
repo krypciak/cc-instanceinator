@@ -1,5 +1,5 @@
 import { runTask } from './inst-util'
-import { InstanceinatorInstance } from './instance'
+import { InstanceinatorInstance, InstanceinatorInstanceConfig } from './instance'
 import type {} from 'nax-ccuilib/src/ui/quick-menu/quick-menu-extension'
 
 const ObjectKeysT: <K extends string | number | symbol, V>(object: Record<K, V>) => K[] = Object.keys as any
@@ -370,12 +370,14 @@ function afterApplySc(
     scToInit.erase('gui')
 }
 
+export interface InstanceinatorCopyInstanceConfig {
+    preLoad?: (inst: InstanceinatorInstance) => void
+}
+
 export async function copyInstance(
     s: InstanceinatorInstance,
-    name?: string,
-    display?: boolean,
-    forceDraw?: boolean,
-    preLoad?: (inst: InstanceinatorInstance) => void
+    config: InstanceinatorInstanceConfig,
+    { preLoad }: InstanceinatorCopyInstanceConfig = {}
 ): Promise<InstanceinatorInstance> {
     if (!classes) initClasses()
     const origIg = instanceinator.id
@@ -386,7 +388,7 @@ export async function copyInstance(
     const { modmanager } = initModManager(s)
     const { nax } = initNax(s)
 
-    const ns = new InstanceinatorInstance(ig, sc, modmanager, nax, name, display, forceDraw)
+    const ns = new InstanceinatorInstance({ ig, sc, modmanager, nax }, config)
     let promise!: Promise<void>
     let loader!: InstanceType<typeof classes.StartLoader>
 
@@ -394,7 +396,7 @@ export async function copyInstance(
         afterApplyIg(ig, igset, igToInit, s, ns)
         afterApplySc(sc, scset, scToInit, s, gameAddons)
 
-        ns.display = !!display
+        ns.display = !!config.display
 
         ig.initGameAddons = () => gameAddons
 

@@ -25,7 +25,7 @@ crossnode.registerTest({
     async setup() {
         instanceinator.resetInstanceIdCounter()
         for (let i = 1; i < 2; i++) {
-            const instance = await instanceinator.copy(instanceinator.instances[0], 'child')
+            const instance = await instanceinator.copy(instanceinator.instances[0], { name: 'child' })
             instance.apply()
         }
     },
@@ -56,7 +56,7 @@ const test1 = crossnode.registerTest<{
     async setup() {
         instanceinator.resetInstanceIdCounter()
         for (let i = 1; i < this.instanceCount; i++) {
-            await instanceinator.copy(instanceinator.instances[0], 'child')
+            await instanceinator.copy(instanceinator.instances[0], { name: 'child' })
         }
         this.startSwapping = true
     },

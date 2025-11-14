@@ -2,22 +2,56 @@ import type {} from 'ccmodmanager/types/gui/gui'
 import { IdLabelDrawClass } from './label-draw'
 import { injectFixes } from './fixes'
 
-export class InstanceinatorInstance {
+type SoundPlayConditionFunc = (this: InstanceinatorInstance) => boolean
+
+export interface InstanceinatorInstanceConfig {
+    name: string
+    display?: boolean
+    forceDraw?: boolean
+    soundPlayCondition?: SoundPlayConditionFunc
+}
+export interface InstanceinatorInstanceGlobals {
+    ig: typeof window.ig
+    sc: typeof window.sc
+    modmanager: typeof window.modmanager
+    nax?: typeof window.nax
+}
+
+export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
     id: number
+
+    name: string
+    private _display: boolean
+    forceDraw: boolean
+    soundPlayCondition: SoundPlayConditionFunc
+
+    ig: typeof window.ig
+    sc: typeof window.sc
+    modmanager: typeof window.modmanager
+    nax?: typeof window.nax
+
     labelDrawClasses: IdLabelDrawClass[]
 
     constructor(
-        public ig: typeof window.ig,
-        public sc: typeof window.sc,
-        public modmanager: typeof window.modmanager,
-        public nax: typeof window.nax | undefined,
-        public name: string = 'default',
-        private _display: boolean = true,
-        public forceDraw: boolean = false,
-        public soundPlayCondition: (this: InstanceinatorInstance) => boolean = () => this.display
+        { ig, sc, modmanager, nax }: InstanceinatorInstanceGlobals,
+        {
+            name,
+            display = true,
+            forceDraw = false,
+            soundPlayCondition = () => this.display,
+        }: InstanceinatorInstanceConfig
     ) {
-        this.id = instanceinator.idCounter
-        instanceinator.idCounter++
+        this.id = instanceinator.idCounter++
+
+        this.ig = ig
+        this.sc = sc
+        this.modmanager = modmanager
+        this.nax = nax
+
+        this.name = name
+        this._display = display
+        this.forceDraw = forceDraw
+        this.soundPlayCondition = soundPlayCondition
 
         this.labelDrawClasses = instanceinator.labelDrawClasses.map(clazz => new clazz(this))
     }
