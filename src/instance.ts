@@ -13,7 +13,8 @@ export class InstanceinatorInstance {
         public nax: typeof window.nax | undefined,
         public name: string = 'default',
         private _display: boolean = true,
-        public forceDraw: boolean = false
+        public forceDraw: boolean = false,
+        public soundPlayCondition: (this: InstanceinatorInstance) => boolean = () => this.display
     ) {
         this.id = instanceinator.idCounter
         instanceinator.idCounter++

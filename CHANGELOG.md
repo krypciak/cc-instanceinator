@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Added
+
+- Add souldPlayCondition argument to instance constructor 
+
 ## [1.0.3] 2025-11-13
 
 ### Fixed 

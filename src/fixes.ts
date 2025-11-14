@@ -233,7 +233,7 @@ function audioFix() {
     ig.SoundManager.inject({
         requestPlaySoundHandle(groupName, handle) {
             const inst = instanceinator.instances[instanceinator.id]
-            if (!inst.display) return
+            if (!inst.soundPlayCondition()) return
 
             return this.parent(groupName, handle)
         },
