@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Fixed
+
+- Fixed crash after unloading a ig.Cacheable twice
+
 ## [1.0.4] 2025-11-14
 
 ### Added

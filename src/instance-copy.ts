@@ -116,7 +116,11 @@ function initIg(s: InstanceinatorInstance, gameAddons: any[]) {
         } else {
             const val = s.ig[key as keyof typeof s.ig]
             if (typeof val === 'object') {
-                igToInit.push(key)
+                if (Array.isArray(val)) {
+                    igAny[key] = [...val]
+                } else {
+                    igToInit.push(key)
+                }
             } else {
                 igAny[key] = val
             }
@@ -154,6 +158,9 @@ function initIg(s: InstanceinatorInstance, gameAddons: any[]) {
     igset('terrain')
     igset('soundManager')
 
+    /* cc-variable-charge-time */
+    igset('onChargeTimingsOptionChange')
+
     ig.EntityPool = { ...s.ig.EntityPool }
     ig.EntityPool.drainAllPools()
 
@@ -172,7 +179,11 @@ function initSc(s: InstanceinatorInstance, gameAddons: any[]) {
         } else {
             const val = s.sc[key as keyof typeof s.sc]
             if (typeof val === 'object') {
-                scToInit.push(key)
+                if (Array.isArray(val)) {
+                    scAny[key] = [...val]
+                } else {
+                    scToInit.push(key)
+                }
             } else {
                 scAny[key] = val
             }

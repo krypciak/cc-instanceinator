@@ -55,6 +55,7 @@ function cacheableFix() {
                     ignoreCacheStaticInstantiate = true
                     const obj = onCachedFound(cached)
                     ignoreCacheStaticInstantiate = false
+                    obj.increaseRef()
                     return obj
                 }
             }
@@ -95,7 +96,6 @@ function cacheableFix() {
     sc.PlayerConfig.inject({
         staticInstantiate: createCacheStaticInstantiate((cached: sc.PlayerConfig) => {
             if (cached._instanceId == instanceinator.id) return cached
-            cached.increaseRef()
 
             const elementConfigs: sc.PlayerConfig['elementConfigs'] = {} as any
             for (const elementStr of Object.keys(sc.ELEMENT) as (keyof typeof sc.ELEMENT)[]) {
