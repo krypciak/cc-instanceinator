@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Fixed
+
+- Fix sc.PlayerSkinLibrary extension skins not available on copied instances
+
 ## [1.0.5] 2025-11-17
 
 ### Fixed

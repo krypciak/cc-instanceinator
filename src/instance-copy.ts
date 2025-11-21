@@ -362,6 +362,8 @@ function afterApplySc(
     scset('npcRunner', new sc.NpcRunnerSpawner())
     scset('party', new sc.PartyModel())
     scset('playerSkins', new sc.PlayerSkinLibrary())
+    sc.playerSkins.skins = s.sc.playerSkins.skins
+    sc.playerSkins.itemToSkin = s.sc.playerSkins.itemToSkin
     scset('bounceSwitchGroups', new sc.BounceSwitchGroups())
     scset('inputForcer', new sc.InputForcer())
     scset('savePreset')
