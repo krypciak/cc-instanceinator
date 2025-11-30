@@ -1,13 +1,13 @@
-import { PluginClass } from 'ultimate-crosscode-typedefs/modloader/mod'
+import type { PluginClass } from 'ultimate-crosscode-typedefs/modloader/mod'
 import ccmod from '../ccmod.json'
 import type {} from 'crossnode/crossnode.d.ts'
-import { Mod1 } from './types'
+import type { Mod1 } from './types'
 import { injectInstance, InstanceinatorInstance } from './instance'
 import { injectTiling, retile } from './tiler'
 import { injectFocus } from './focus'
 import { copyInstance } from './instance-copy'
 import { registerOpts } from './options'
-import { FpsLabelDrawClass, IdLabelDrawClass, LabelDrawClass } from './label-draw'
+import { FpsLabelDrawClass, IdLabelDrawClass, type LabelDrawClass } from './label-draw'
 
 import './class-id-to-class'
 

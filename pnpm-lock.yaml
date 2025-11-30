@@ -37,7 +37,7 @@ importers:
         version: 9.1.2(eslint@8.57.1)
       nax-ccuilib:
         specifier: github:krypciak/nax-ccuilib
-        version: https://codeload.github.com/krypciak/nax-ccuilib/tar.gz/0f3ad110c19b7bc4dce80fdcfe3a14f1eb654b37
+        version: https://codeload.github.com/krypciak/nax-ccuilib/tar.gz/1ecf8db5495258d248f2d9f4a0260933a2f51f9d
       node:
         specifier: ^22.21.1
         version: 22.21.1
@@ -601,8 +601,8 @@ packages:
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
-  nax-ccuilib@https://codeload.github.com/krypciak/nax-ccuilib/tar.gz/0f3ad110c19b7bc4dce80fdcfe3a14f1eb654b37:
-    resolution: {tarball: https://codeload.github.com/krypciak/nax-ccuilib/tar.gz/0f3ad110c19b7bc4dce80fdcfe3a14f1eb654b37}
+  nax-ccuilib@https://codeload.github.com/krypciak/nax-ccuilib/tar.gz/1ecf8db5495258d248f2d9f4a0260933a2f51f9d:
+    resolution: {tarball: https://codeload.github.com/krypciak/nax-ccuilib/tar.gz/1ecf8db5495258d248f2d9f4a0260933a2f51f9d}
     version: 1.5.5
 
   node-bin-setup@1.1.4:
@@ -1305,7 +1305,7 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  nax-ccuilib@https://codeload.github.com/krypciak/nax-ccuilib/tar.gz/0f3ad110c19b7bc4dce80fdcfe3a14f1eb654b37: {}
+  nax-ccuilib@https://codeload.github.com/krypciak/nax-ccuilib/tar.gz/1ecf8db5495258d248f2d9f4a0260933a2f51f9d: {}
 
   node-bin-setup@1.1.4: {}
 

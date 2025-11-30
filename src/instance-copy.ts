@@ -1,5 +1,5 @@
 import { runTask } from './inst-util'
-import { InstanceinatorInstance, InstanceinatorInstanceConfig } from './instance'
+import { InstanceinatorInstance, type InstanceinatorInstanceConfig } from './instance'
 import type {} from 'nax-ccuilib/src/ui/quick-menu/quick-menu-extension'
 
 const ObjectKeysT: <K extends string | number | symbol, V>(object: Record<K, V>) => K[] = Object.keys as any
