@@ -8,6 +8,7 @@ import { injectFocus } from './focus'
 import { copyInstance } from './instance-copy'
 import { registerOpts } from './options'
 import { FpsLabelDrawClass, IdLabelDrawClass, type LabelDrawClass } from './label-draw'
+import { setMusicInstanceId } from './fixes'
 
 import './class-id-to-class'
 
@@ -66,6 +67,7 @@ class Instanceinator {
     idCounter: number = 0
     displayId: boolean = false
     displayFps: boolean = false
+    musicInstanceId: number = 0
 
     labelDrawClasses: (new (instance: InstanceinatorInstance) => LabelDrawClass)[] = [
         IdLabelDrawClass,
@@ -96,6 +98,6 @@ class Instanceinator {
     }
 
     retile = retile
-
     copy = copyInstance
+    setMusicInstanceId = setMusicInstanceId
 }

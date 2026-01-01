@@ -1,4 +1,4 @@
-import { runTask } from './inst-util'
+import { runTask, runTasks } from './inst-util'
 import { InstanceinatorInstance } from './instance'
 
 export function injectFixes() {
@@ -92,6 +92,7 @@ function cacheableFix() {
 
     ig.WeatherInstance.inject({ instanceUnique: true })
     ig.EnvParticleSpawner.inject({ instanceUnique: true })
+    ig.TrackWebAudio.inject({ instanceUnique: true })
 
     sc.PlayerConfig.inject({
         staticInstantiate: createCacheStaticInstantiate((cached: sc.PlayerConfig) => {
@@ -220,11 +221,95 @@ function dialogFix() {
     }
 }
 
+function shouldMuteMusic(inst: InstanceinatorInstance) {
+    return instanceinator.musicInstanceId != inst.id // inst.display === false
+}
+
+function updateMusicTrackVolume(music: ig.Music, trackRaw: ig.Track | undefined) {
+    if (!trackRaw) return
+    const track = trackRaw as ig.TrackWebAudio
+    const inst = instanceinator.instances[music._instanceId]
+    const shouldMute = !inst || shouldMuteMusic(inst)
+    // console.log('updateMusicTrackVolume', 'ig.music:', music._instanceId, 'instanceinator.id:', instanceinator.id, 'isLocked:', track.isVolumeLocked(), 'shouldMute:', shouldMute)
+    if (shouldMute) {
+        if (!track.isVolumeLocked()) {
+            track.lockVolume(0)
+        }
+    } else if (track.isVolumeLocked()) {
+        track.unlockVolume()
+    }
+}
+
+export function setMusicInstanceId(id: number) {
+    if (!instanceinator.instances[id]) console.warn(`setMusicInstanceId: instance with id: ${id} doesn't exist!`)
+    if (instanceinator.musicInstanceId !== id) {
+        instanceinator.musicInstanceId = id
+        runTasks(Object.values(instanceinator.instances), () => {
+            for (const track of ig.music.trackStack) updateMusicTrackVolume(ig.music, track.track)
+        })
+    }
+}
+
+declare global {
+    namespace ig {
+        interface TrackWebAudio {
+            volumeBackup?: number
+
+            isVolumeLocked(this: this): boolean
+            lockVolume(this: this, newVolume?: number): void
+            unlockVolume(this: this): void
+        }
+    }
+}
+
 function musicFix() {
+    ig.TrackWebAudio.inject({
+        isVolumeLocked() {
+            return this.volumeBackup !== undefined
+        },
+        setVolume(volume) {
+            if (this.isVolumeLocked()) this.volumeBackup = volume
+            else return this.parent(volume)
+        },
+        lockVolume(newVolume) {
+            if (this.isVolumeLocked())
+                throw new Error('called ig.TrackWebAudio#lockVolume when volume is already locked!')
+            const oldVolume = Math.sqrt(this._volume / this.baseVolume)
+            if (newVolume !== undefined) this.setVolume(newVolume)
+            this.volumeBackup = oldVolume
+        },
+        unlockVolume() {
+            const oldVolume = this.volumeBackup!
+            if (!this.isVolumeLocked())
+                throw new Error("called ig.TrackWebAudio#unlockVolume when volume wasn't locked!")
+            this.volumeBackup = undefined
+            this.setVolume(oldVolume)
+        },
+    })
+    ig.BgmTrack.inject({
+        copy() {
+            const newCopy = this.parent()
+            ;(newCopy.track as ig.TrackWebAudio).volumeBackup = (this.track as ig.TrackWebAudio).volumeBackup
+            return newCopy
+        },
+    })
     ig.Music.inject({
-        play(track, fadeOut, fadeIn, volume, stopOnEnd) {
-            if (instanceinator.instances[instanceinator.id]?.display === false) return
-            this.parent(track, fadeOut, fadeIn, volume, stopOnEnd)
+        inbetween(track, volume, fadeIn, volumeMultiplier) {
+            this.parent(track, volume, fadeIn, volumeMultiplier)
+            updateMusicTrackVolume(this, track)
+        },
+        _checkCurrentTrackEquality() {
+            updateMusicTrackVolume(this, this.currentTrack?.track)
+            return this.parent()
+        },
+        _playTopSong() {
+            this.parent()
+            updateMusicTrackVolume(this, this.currentTrack?.track)
+        },
+        onWindowFocusGained() {
+            this.parent()
+            updateMusicTrackVolume(this, this.inBetweenTrack?.track)
+            updateMusicTrackVolume(this, this.currentTrack?.track)
         },
     })
 }

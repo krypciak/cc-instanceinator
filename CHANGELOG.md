@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Changed
+
+- Allow playing music from only one specific configurable instance at once
+
 ## [1.0.6] 2025-12-17
 
 ### Fixed
