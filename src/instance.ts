@@ -1,6 +1,7 @@
 import type {} from 'ccmodmanager/types/gui/gui'
 import { IdLabelDrawClass } from './label-draw'
 import { injectFixes } from './fixes'
+import { runTask } from './inst-util'
 
 type SoundPlayConditionFunc = (this: InstanceinatorInstance) => boolean
 
@@ -90,9 +91,12 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
 
         ig.storage.listeners = ig.storage.listeners.filter(listener => (listener as ig.Class)._instanceId != this.id)
 
-        for (const handle of ig.soundManager.soundHandles as ig.SoundHandleWebAudio[]) {
-            if (handle._instanceId == this.id) handle.stop()
-        }
+        runTask(this, () => {
+            for (const handle of (ig.soundManager?.soundHandles as ig.SoundHandleWebAudio[]) ?? []) {
+                if (handle._instanceId == this.id) handle.stop()
+            }
+            ig.music?.pause()
+        })
     }
 
     drawLabels() {

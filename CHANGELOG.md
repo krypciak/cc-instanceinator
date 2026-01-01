@@ -8,6 +8,10 @@
 
 - Allow playing music from only one specific configurable instance at once
 
+### Fixed
+
+- Pause music on instance destroy
+
 ## [1.0.6] 2025-12-17
 
 ### Fixed
