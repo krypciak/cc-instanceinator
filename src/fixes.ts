@@ -289,7 +289,9 @@ function musicFix() {
     ig.BgmTrack.inject({
         copy() {
             const newCopy = this.parent()
-            ;(newCopy.track as ig.TrackWebAudio).volumeBackup = (this.track as ig.TrackWebAudio).volumeBackup
+            if (newCopy.track) {
+                ;(newCopy.track as ig.TrackWebAudio).volumeBackup = (this.track as ig.TrackWebAudio)?.volumeBackup
+            }
             return newCopy
         },
     })

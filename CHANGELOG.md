@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Fixed
+
+- Fix crash when entering map with no bgm
+
 ## [1.0.7] 2026-01-01
 
 ### Changed
