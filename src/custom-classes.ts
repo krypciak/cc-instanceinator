@@ -90,6 +90,15 @@ export function initClasses() {
             this.leaConfig = new sc.PlayerConfig('Lea')
         },
     })
+    const Weather: ig.WeatherConstructor = ig.Weather.extend({
+        init() {
+            this.parent()
+            this.currentWeather = new ig.WeatherInstance('NONE')
+            this.clouds = new ig.Clouds()
+            this.fog = new ig.Fog()
+            this.rain = new ig.Rain()
+        },
+    })
 
     const classes1 = {
         System,
@@ -99,7 +108,8 @@ export function initClasses() {
         QuestModel,
         StartLoader,
         ExtensionManager,
-        GameModel
+        GameModel,
+        Weather,
     }
     instanceinator.classes = classes = classes1
     return classes1

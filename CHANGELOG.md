@@ -7,6 +7,7 @@
 ### Fixed
 
 - Fix sc.GameModel#leaConfig linking across instances
+- Fix ig.Weather linking across instances
 
 ## [1.0.8] 2026-01-15
 

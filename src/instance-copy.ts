@@ -202,7 +202,7 @@ function afterApplyIg(
     igset('gui', new instanceinator.classes.Gui())
     igset('guiImage', new ig.GuiImage())
     igset('light', new ig.Light())
-    igset('weather', new ig.Weather())
+    igset('weather', new instanceinator.classes.Weather())
     // @ts-expect-error
     igset('navigation', new ig.Navigation())
     igset('mapStyle', new ig.MapStyle())
