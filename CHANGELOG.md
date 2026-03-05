@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Fixed
+
+- Fix sc.GameModel#leaConfig linking across instances
+
 ## [1.0.8] 2026-01-15
 
 ### Fixed

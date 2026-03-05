@@ -92,6 +92,12 @@ function initClasses() {
             this.enabled = orig.enabled
         },
     })
+    const GameModel: sc.GameModelConstructor = sc.GameModel.extend({
+        init() {
+            this.parent()
+            this.leaConfig = new sc.PlayerConfig('Lea')
+        },
+    })
 
     const classes1 = {
         System,
@@ -101,6 +107,7 @@ function initClasses() {
         QuestModel,
         StartLoader,
         ExtensionManager,
+        GameModel
     }
     classes = classes1
     return classes1
@@ -347,7 +354,7 @@ function afterApplySc(
     scset('lore', new sc.LoreModel())
     scset('trade', new sc.TradeModel())
     scset('menu', new sc.MenuModel())
-    scset('model', new sc.GameModel())
+    scset('model', new classes.GameModel())
     scset('detectors', new sc.Detectors())
     scset('combat', new sc.Combat())
     scset('pvp', new sc.PvpModel())
