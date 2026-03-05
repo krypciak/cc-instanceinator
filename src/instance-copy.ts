@@ -6,113 +6,6 @@ const ObjectKeysT: <K extends string | number | symbol, V>(object: Record<K, V>)
 
 type SetFunc = (name: string, to?: any) => void
 
-interface StartLoader extends sc.StartLoader {
-    readyCallback?: () => void
-}
-interface StartLoaderConstructor extends ImpactClass<StartLoader> {
-    new (gameClass: sc.CrossCodeConstructor): StartLoader
-}
-
-let classes: ReturnType<typeof initClasses>
-function initClasses() {
-    const System: ig.SystemConstructor = ig.System.extend({
-        init(...args) {
-            const backup = HTMLCanvasElement.prototype.getContext
-            HTMLCanvasElement.prototype.getContext = function (
-                this: HTMLCanvasElement,
-                type: '2d',
-                options: undefined
-            ) {
-                if (options) throw new Error()
-                return backup.call(this, type, { alpha: false, desynchronized: true })
-            } as any
-            this.parent(...args)
-            HTMLCanvasElement.prototype.getContext = backup
-        },
-        startRunLoop() {},
-    })
-    const CrossCode: sc.CrossCodeConstructor = sc.CrossCode.extend({
-        init() {
-            this.addons = {
-                all: [],
-                levelLoadStart: [],
-                levelLoaded: [],
-                teleport: [],
-                preUpdate: [],
-                postUpdate: [],
-                deferredUpdate: [],
-                preDraw: [],
-                midDraw: [],
-                postDraw: [],
-                varsChanged: [],
-                reset: [],
-                windowFocusChanged: [],
-            }
-            this.parent()
-            this.events = new ig.EventManager()
-            this.renderer = new ig.Renderer2d()
-            this.physics = new ig.Physics()
-
-            /* fix memory leaks */
-            ig.gui.removeGuiElement(window.testGui)
-            window.testGui = undefined as any
-        },
-    })
-    const Gui: ig.GuiConstructor = ig.Gui.extend({
-        init() {
-            this.parent()
-            this.renderer = new (ig.classIdToClass[this.renderer.classId] as unknown as ig.GuiRendererConstructor)()
-        },
-    })
-    const CommonEvents: sc.CommonEventsConstructor = sc.CommonEvents.extend({
-        _loadCommonEvents() {
-            const orig = instanceinator.instances[0].sc.commonEvents
-            this.events = orig.events
-            this.eventsByType = orig.eventsByType
-        },
-    })
-    const QuestModel: sc.QuestModelConstructor = sc.QuestModel.extend({
-        _loadStaticQuests() {
-            this.staticQuests = instanceinator.instances[0].sc.quests.staticQuests
-        },
-    })
-    const StartLoader: StartLoaderConstructor = sc.StartLoader.extend({
-        onEnd() {
-            this.parent()
-            this.readyCallback!()
-        },
-    })
-    const ExtensionManager: ig.ExtensionManagerConstructor = ig.ExtensionManager.extend({
-        init() {
-            this.parent()
-        },
-        load() {
-            const orig = instanceinator.instances[0].ig.extensions
-            this.list = orig.list
-            this.enabled = orig.enabled
-        },
-    })
-    const GameModel: sc.GameModelConstructor = sc.GameModel.extend({
-        init() {
-            this.parent()
-            this.leaConfig = new sc.PlayerConfig('Lea')
-        },
-    })
-
-    const classes1 = {
-        System,
-        CrossCode,
-        Gui,
-        CommonEvents,
-        QuestModel,
-        StartLoader,
-        ExtensionManager,
-        GameModel
-    }
-    classes = classes1
-    return classes1
-}
-
 function initIg(s: InstanceinatorInstance, gameAddons: any[]) {
     const ig: typeof window.ig = {} as any
     const igAny = ig as any
@@ -159,7 +52,7 @@ function initIg(s: InstanceinatorInstance, gameAddons: any[]) {
     igset('langFileList')
     igset('cacheList')
     igset('dataBrowser')
-    igset('extensions', new classes.ExtensionManager())
+    igset('extensions', new instanceinator.classes.ExtensionManager())
     igset('lang')
     igset('globalSettings')
     igset('terrain')
@@ -285,7 +178,7 @@ function afterApplyIg(
     igset('classIdToClass')
     igset(
         'system',
-        new classes.System(
+        new instanceinator.classes.System(
             '#' + canvasId,
             '#' + gameId,
             s.ig.system.fps,
@@ -306,7 +199,7 @@ function afterApplyIg(
     igset('camera', new ig.Camera())
     igset('rumble', new ig.Rumble())
     igset('slowMotion', new ig.SlowMotion())
-    igset('gui', new classes.Gui())
+    igset('gui', new instanceinator.classes.Gui())
     igset('guiImage', new ig.GuiImage())
     igset('light', new ig.Light())
     igset('weather', new ig.Weather())
@@ -354,7 +247,7 @@ function afterApplySc(
     scset('lore', new sc.LoreModel())
     scset('trade', new sc.TradeModel())
     scset('menu', new sc.MenuModel())
-    scset('model', new classes.GameModel())
+    scset('model', new instanceinator.classes.GameModel())
     scset('detectors', new sc.Detectors())
     scset('combat', new sc.Combat())
     scset('pvp', new sc.PvpModel())
@@ -374,8 +267,8 @@ function afterApplySc(
     scset('bounceSwitchGroups', new sc.BounceSwitchGroups())
     scset('inputForcer', new sc.InputForcer())
     scset('savePreset')
-    scset('quests', new classes.QuestModel())
-    scset('commonEvents', new classes.CommonEvents())
+    scset('quests', new instanceinator.classes.QuestModel())
+    scset('commonEvents', new instanceinator.classes.CommonEvents())
     scset('voiceActing')
     scset('credits', new sc.CreditsManager())
     scset('arena', new sc.Arena())
@@ -399,7 +292,6 @@ export async function copyInstance(
     config: InstanceinatorInstanceConfig,
     { preLoad }: InstanceinatorCopyInstanceConfig = {}
 ): Promise<InstanceinatorInstance> {
-    if (!classes) initClasses()
     const origIg = instanceinator.id
 
     const gameAddons: any[] = []
@@ -410,7 +302,7 @@ export async function copyInstance(
 
     const ns = new InstanceinatorInstance({ ig, sc, modmanager, nax }, config)
     let promise!: Promise<void>
-    let loader!: InstanceType<typeof classes.StartLoader>
+    let loader!: InstanceType<typeof instanceinator.classes.StartLoader>
 
     runTask(ns, () => {
         afterApplyIg(ig, igset, igToInit, s, ns)
@@ -423,7 +315,7 @@ export async function copyInstance(
         if (preLoad) preLoad(ns)
 
         ig.ready = true
-        loader = new classes.StartLoader(classes.CrossCode)
+        loader = new instanceinator.classes.StartLoader(instanceinator.classes.CrossCode)
         ig.mainLoader = loader
 
         promise = new Promise<void>(res => {

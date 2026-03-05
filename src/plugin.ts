@@ -9,6 +9,7 @@ import { copyInstance } from './instance-copy'
 import { registerOpts } from './options'
 import { FpsLabelDrawClass, IdLabelDrawClass, type LabelDrawClass } from './label-draw'
 import { setMusicInstanceId } from './fixes'
+import { classes, initClasses } from './custom-classes'
 
 import './class-id-to-class'
 
@@ -31,6 +32,7 @@ export default class CCInstanceinator implements PluginClass {
 
     async prestart() {
         registerOpts()
+        initClasses()
         injectInstance()
         injectTiling()
         injectFocus()
@@ -100,4 +102,5 @@ class Instanceinator {
     retile = retile
     copy = copyInstance
     setMusicInstanceId = setMusicInstanceId
+    classes!: typeof classes
 }
