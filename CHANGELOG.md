@@ -8,6 +8,7 @@
 
 - Fix sc.GameModel#leaConfig linking across instances
 - Fix ig.Weather linking across instances
+- Fix crash after entering nax-cculib edit menu on base instance and doing the same on sub copied instance
 
 ## [1.0.8] 2026-01-15
 

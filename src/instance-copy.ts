@@ -140,7 +140,11 @@ function initNax(s: InstanceinatorInstance) {
     }
     {
         const orig = s.nax.ccuilib.QuickRingMenuWidgets
-        nax.ccuilib.QuickRingMenuWidgets = { ...orig, observers: [...orig.observers], widgets: { ...orig.widgets } }
+        nax.ccuilib.QuickRingMenuWidgets = {
+            ...orig,
+            observers: [...orig.observers],
+            widgets: Object.fromEntries(Object.entries(orig.widgets).filter(([k]) => !k.startsWith('dummy'))),
+        }
     }
     return { nax }
 }
