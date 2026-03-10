@@ -367,7 +367,7 @@ function nwjsFullscreenFix() {
     let lastChecked = Date.now()
     function isFullscreenCached() {
         const now = Date.now()
-        if (lastChecked + 10e3 < now) {
+        if (lastChecked + 500 < now) {
             isFullscreenCache = queryNwGui()
         }
         lastChecked = now
@@ -381,7 +381,7 @@ function nwjsFullscreenFix() {
                 localStorage.setItem('IG_FULLSCREEN', `${newValue}`)
 
                 const oldValue = isFullscreenCached()
-                if (oldValue != newValue) {
+                if (oldValue != newValue && instanceinator.instances[instanceinator.id]) {
                     if (newValue) {
                         win.enterFullscreen()
                     } else {

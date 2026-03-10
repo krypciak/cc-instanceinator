@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Fixed
+
+- Improve fullscreen handling
+
 ## [1.0.9] 2026-03-06
 
 ### Fixed
