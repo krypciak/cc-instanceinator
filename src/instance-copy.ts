@@ -66,6 +66,8 @@ function initIg(s: InstanceinatorInstance, gameAddons: any[]) {
 
     ig.ScreenBufferPool = { ...s.ig.ScreenBufferPool, handleList: [], freeBuffers: [] }
 
+    gameAddons.push(...s.ig.game.addons.preUpdate.filter(a => !('classId' in a)))
+
     return { ig, igset, igToInit }
 }
 
