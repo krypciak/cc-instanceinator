@@ -314,6 +314,41 @@ function musicFix() {
             updateMusicTrackVolume(this, this.currentTrack?.track)
         },
     })
+
+    ig.EVENT_STEP.PLAY_BGM.inject({
+        start(data, eventCall) {
+            this.track = this.track.copy()
+            return this.parent(data, eventCall)
+        },
+    })
+    ig.EVENT_STEP.PUSH_BGM.inject({
+        start(data, eventCall) {
+            this.track = this.track.copy()
+            return this.parent(data, eventCall)
+        },
+    })
+    ig.EVENT_STEP.PLAY_IN_BETWEEN_BGM.inject({
+        start(data, eventCall) {
+            this.track = this.track.copy()
+            return this.parent(data, eventCall)
+        },
+    })
+    ig.EVENT_STEP.SHOW_GET_MSG.inject({
+        start(data, eventCall) {
+            this.track = this.track.copy()
+            return this.parent(data, eventCall)
+        },
+    })
+    ig.Music.inject({
+        _pushNextTrack(track, stopOnEnd, mode) {
+            if (track._instanceId != this._instanceId)
+                console.warn(
+                    `cc-instanceinator: ig.Music#_pushNextTrack`,
+                    `track._instanceId (${track._instanceId}) != this._instanceId (${this._instanceId}), music might malfunction!`
+                )
+            return this.parent(track, stopOnEnd, mode)
+        },
+    })
 }
 
 function audioFix() {

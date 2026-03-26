@@ -7,6 +7,7 @@
 ### Fixed
 
 - Fix ccmodmanager global keybindings on copied instances
+- Fix bgm steps not working with multiple instances
 
 ## [1.1.0] 2026-03-11
 
