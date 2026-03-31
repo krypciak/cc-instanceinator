@@ -341,7 +341,7 @@ function musicFix() {
     })
     ig.Music.inject({
         _pushNextTrack(track, stopOnEnd, mode) {
-            if (track._instanceId != this._instanceId)
+            if (track && track._instanceId != this._instanceId)
                 console.warn(
                     `cc-instanceinator: ig.Music#_pushNextTrack`,
                     `track._instanceId (${track._instanceId}) != this._instanceId (${this._instanceId}), music might malfunction!`
