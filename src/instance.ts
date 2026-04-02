@@ -1,7 +1,7 @@
 import type {} from 'ccmodmanager/types/gui/gui'
 import { IdLabelDrawClass } from './label-draw'
 import { injectFixes } from './fixes'
-import { runTask } from './inst-util'
+import { filterInstanceObjectsFromArray, runTask, scheduleTask } from './inst-util'
 
 type SoundPlayConditionFunc = (this: InstanceinatorInstance) => boolean
 
@@ -89,7 +89,7 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
         const div = this.ig.system?.inputDom
         if (div) document.body.removeChild(div)
 
-        ig.storage.listeners = ig.storage.listeners.filter(listener => (listener as ig.Class)._instanceId != this.id)
+        ig.storage.listeners = filterInstanceObjectsFromArray(ig.storage.listeners, this.id)
 
         runTask(this, () => {
             for (const handle of (ig.soundManager?.soundHandles as ig.SoundHandleWebAudio[]) ?? []) {
@@ -163,7 +163,7 @@ export function injectInstance() {
     ig.Loader.inject({
         finalize() {
             if (this._instanceId != instanceinator.id) {
-                instanceinator.instances[this._instanceId].ig.game.scheduledTasks.push(() => {
+                scheduleTask(instanceinator.instances[this._instanceId], () => {
                     this.finalize()
                 })
             } else {

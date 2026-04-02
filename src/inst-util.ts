@@ -70,3 +70,7 @@ export function wait(inst: InstanceinatorInstance, seconds: number): Promise<voi
         loop()
     })
 }
+
+export function filterInstanceObjectsFromArray<T extends object>(classes: T[], instanceIdToRemove: number): T[] {
+    return classes.filter(c => !('_instanceId' in c) || c._instanceId != instanceIdToRemove)
+}

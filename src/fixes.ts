@@ -146,9 +146,7 @@ function modmanagerFix() {
         this: T & { parent(this: T, ...args: E): R },
         ...args: E
     ): R {
-        return runTask(instanceinator.instances[this._instanceId], () => {
-            return this.parent(...args)
-        })
+        return runTask(instanceinator.instances[this._instanceId], () => this.parent(...args))
     }
     /* fix modmanager crashes */
     modmanager.gui.MenuList.inject({
