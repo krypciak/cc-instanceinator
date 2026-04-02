@@ -223,7 +223,7 @@ function shouldMuteMusic(inst: InstanceinatorInstance) {
     return instanceinator.musicInstanceId != inst.id // inst.display === false
 }
 
-function updateMusicTrackVolume(music: ig.Music, trackRaw: ig.Track | undefined) {
+function updateMusicTrackVolume(music: ig.Music, trackRaw: ig.Track | undefined | null) {
     if (!trackRaw) return
     const track = trackRaw as ig.TrackWebAudio
     const inst = instanceinator.instances[music._instanceId]
