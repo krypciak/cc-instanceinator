@@ -300,12 +300,12 @@ export async function copyInstance(
     config: InstanceinatorInstanceConfig,
     { preLoad, cacheKey, hideTitleScreen }: InstanceinatorCopyInstanceConfig = {}
 ): Promise<InstanceinatorInstance> {
-    console.time('instance copy' + config.name)
+    // console.time('instance copy' + config.name)
     if (cacheKey && (instanceinator.cachedInstances[cacheKey] ?? []).length > 0) {
         const ns = await instanceinator.cachedInstances[cacheKey].shift()!
         ns.setConfig(config)
         ns.display = !!config.display
-        console.timeEnd('instance copy' + config.name)
+        // console.timeEnd('instance copy' + config.name)
         return ns
     }
 
@@ -350,6 +350,6 @@ export async function copyInstance(
 
     instanceinator.instances[origIg].apply()
     instanceinator.append(ns)
-    console.timeEnd('instance copy' + config.name)
+    // console.timeEnd('instance copy' + config.name)
     return ns
 }
