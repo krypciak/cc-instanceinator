@@ -2,10 +2,10 @@ import type { PluginClass } from 'ultimate-crosscode-typedefs/modloader/mod'
 import ccmod from '../ccmod.json'
 import type {} from 'crossnode/crossnode.d.ts'
 import type { Mod1 } from './types'
-import { injectInstance, InstanceinatorInstance } from './instance'
+import { injectInstance, InstanceinatorInstance, type InstanceinatorInstanceConfig } from './instance'
 import { injectTiling, retile } from './tiler'
 import { injectFocus } from './focus'
-import { copyInstance } from './instance-copy'
+import { copyInstance, type InstanceinatorCopyInstanceConfig } from './instance-copy'
 import { registerOpts } from './options'
 import { FpsLabelDrawClass, IdLabelDrawClass, type LabelDrawClass } from './label-draw'
 import { setMusicInstanceId } from './fixes'
@@ -70,6 +70,7 @@ class Instanceinator {
     displayId: boolean = false
     displayFps: boolean = false
     musicInstanceId: number = 0
+    cachedInstances: Record<string, Promise<InstanceinatorInstance>[]> = {}
 
     labelDrawClasses: (new (instance: InstanceinatorInstance) => LabelDrawClass)[] = [
         IdLabelDrawClass,
@@ -97,6 +98,26 @@ class Instanceinator {
 
         delete this.instances[instance.id]
         this.retile()
+    }
+
+    async createCachedInstances(baseInst: InstanceinatorInstance, configs: InstanceinatorCopyInstanceConfig[]) {
+        return Promise.all(
+            configs.map(async (copyConfig, i) => {
+                const cacheKey = copyConfig.cacheKey
+                if (!cacheKey) throw new Error('called createCachedInstances without a cacheKey in copyConfig!')
+                const arr = (this.cachedInstances[cacheKey] ??= [])
+                arr.push(
+                    copyInstance(
+                        baseInst,
+                        {
+                            name: `cached-${cacheKey}-${Date.now()}-${i}`,
+                            display: false,
+                        },
+                        { ...copyConfig, cacheKey: undefined }
+                    )
+                )
+            })
+        )
     }
 
     retile = retile

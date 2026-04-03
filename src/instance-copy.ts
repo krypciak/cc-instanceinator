@@ -291,13 +291,23 @@ function afterApplySc(
 
 export interface InstanceinatorCopyInstanceConfig {
     preLoad?: (inst: InstanceinatorInstance) => void
+    cacheKey?: string
 }
 
 export async function copyInstance(
     s: InstanceinatorInstance,
     config: InstanceinatorInstanceConfig,
-    { preLoad }: InstanceinatorCopyInstanceConfig = {}
+    { preLoad, cacheKey }: InstanceinatorCopyInstanceConfig = {}
 ): Promise<InstanceinatorInstance> {
+    console.time('instance copy' + config.name)
+    if (cacheKey && (instanceinator.cachedInstances[cacheKey] ?? []).length > 0) {
+        const ns = await instanceinator.cachedInstances[cacheKey].shift()!
+        ns.setConfig(config)
+        ns.display = !!config.display
+        console.timeEnd('instance copy' + config.name)
+        return ns
+    }
+
     const origIg = instanceinator.id
 
     const gameAddons: any[] = []
@@ -336,5 +346,6 @@ export async function copyInstance(
 
     instanceinator.instances[origIg].apply()
     instanceinator.append(ns)
+    console.timeEnd('instance copy' + config.name)
     return ns
 }

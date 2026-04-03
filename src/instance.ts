@@ -21,10 +21,10 @@ export interface InstanceinatorInstanceGlobals {
 export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
     id: number
 
-    name: string
-    private _display: boolean
-    forceDraw: boolean
-    soundPlayCondition: SoundPlayConditionFunc
+    name!: string
+    private _display!: boolean
+    forceDraw!: boolean
+    soundPlayCondition!: SoundPlayConditionFunc
 
     ig: typeof window.ig
     sc: typeof window.sc
@@ -33,15 +33,7 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
 
     labelDrawClasses: IdLabelDrawClass[]
 
-    constructor(
-        { ig, sc, modmanager, nax }: InstanceinatorInstanceGlobals,
-        {
-            name,
-            display = true,
-            forceDraw = false,
-            soundPlayCondition = () => this.display,
-        }: InstanceinatorInstanceConfig
-    ) {
+    constructor({ ig, sc, modmanager, nax }: InstanceinatorInstanceGlobals, config: InstanceinatorInstanceConfig) {
         this.id = instanceinator.idCounter++
 
         this.ig = ig
@@ -49,12 +41,21 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
         this.modmanager = modmanager
         this.nax = nax
 
+        this.setConfig(config)
+
+        this.labelDrawClasses = instanceinator.labelDrawClasses.map(clazz => new clazz(this))
+    }
+
+    setConfig({
+        name,
+        display = true,
+        forceDraw = false,
+        soundPlayCondition = () => this.display,
+    }: InstanceinatorInstanceConfig) {
         this.name = name
         this._display = display
         this.forceDraw = forceDraw
         this.soundPlayCondition = soundPlayCondition
-
-        this.labelDrawClasses = instanceinator.labelDrawClasses.map(clazz => new clazz(this))
     }
 
     set display(value: boolean) {

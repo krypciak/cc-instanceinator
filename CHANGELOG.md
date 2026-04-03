@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Added
+
+- Add instance ahead of time creation functionality to improve performance
+
 ## [1.1.1] 2026-04-03
 
 ### Fixed
