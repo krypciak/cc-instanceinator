@@ -292,12 +292,13 @@ function afterApplySc(
 export interface InstanceinatorCopyInstanceConfig {
     preLoad?: (inst: InstanceinatorInstance) => void
     cacheKey?: string
+    hideTitleScreen?: boolean
 }
 
 export async function copyInstance(
     s: InstanceinatorInstance,
     config: InstanceinatorInstanceConfig,
-    { preLoad, cacheKey }: InstanceinatorCopyInstanceConfig = {}
+    { preLoad, cacheKey, hideTitleScreen }: InstanceinatorCopyInstanceConfig = {}
 ): Promise<InstanceinatorInstance> {
     console.time('instance copy' + config.name)
     if (cacheKey && (instanceinator.cachedInstances[cacheKey] ?? []).length > 0) {
@@ -317,6 +318,9 @@ export async function copyInstance(
     const { nax } = initNax(s)
 
     const ns = new InstanceinatorInstance({ ig, sc, modmanager, nax }, config)
+
+    ns.ig.hideTitleScreen = hideTitleScreen
+
     let promise!: Promise<void>
     let loader!: InstanceType<typeof instanceinator.classes.StartLoader>
 

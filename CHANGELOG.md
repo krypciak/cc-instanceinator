@@ -7,6 +7,7 @@
 ### Added
 
 - Add instance ahead of time creation functionality to improve performance
+- Add instance copy opiton to hide title screen
 
 ## [1.1.1] 2026-04-03
 

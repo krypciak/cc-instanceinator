@@ -2,7 +2,7 @@ import type { PluginClass } from 'ultimate-crosscode-typedefs/modloader/mod'
 import ccmod from '../ccmod.json'
 import type {} from 'crossnode/crossnode.d.ts'
 import type { Mod1 } from './types'
-import { injectInstance, InstanceinatorInstance, type InstanceinatorInstanceConfig } from './instance'
+import { injectInstance, InstanceinatorInstance } from './instance'
 import { injectTiling, retile } from './tiler'
 import { injectFocus } from './focus'
 import { copyInstance, type InstanceinatorCopyInstanceConfig } from './instance-copy'
@@ -10,6 +10,7 @@ import { registerOpts } from './options'
 import { FpsLabelDrawClass, IdLabelDrawClass, type LabelDrawClass } from './label-draw'
 import { setMusicInstanceId } from './fixes'
 import { classes, initClasses } from './custom-classes'
+import { injectTitleScreenHide } from './title-screen-hide'
 
 import './class-id-to-class'
 
@@ -36,6 +37,7 @@ export default class CCInstanceinator implements PluginClass {
         injectInstance()
         injectTiling()
         injectFocus()
+        injectTitleScreenHide()
 
         if (window.crossnode?.options.test) {
             import('./tests')
