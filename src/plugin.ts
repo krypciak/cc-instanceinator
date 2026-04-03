@@ -73,6 +73,7 @@ class Instanceinator {
     displayFps: boolean = false
     musicInstanceId: number = 0
     cachedInstances: Record<string, Promise<InstanceinatorInstance>[]> = {}
+    allInstances: Set<InstanceinatorInstance> = new Set()
 
     labelDrawClasses: (new (instance: InstanceinatorInstance) => LabelDrawClass)[] = [
         IdLabelDrawClass,
@@ -100,6 +101,10 @@ class Instanceinator {
 
         delete this.instances[instance.id]
         this.retile()
+    }
+
+    getAllCreatedInstances() {
+        return this.allInstances
     }
 
     async createCachedInstances(baseInst: InstanceinatorInstance, configs: InstanceinatorCopyInstanceConfig[]) {

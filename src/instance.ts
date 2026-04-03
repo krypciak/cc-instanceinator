@@ -44,6 +44,8 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
         this.setConfig(config)
 
         this.labelDrawClasses = instanceinator.labelDrawClasses.map(clazz => new clazz(this))
+
+        instanceinator.allInstances.add(this)
     }
 
     setConfig({
@@ -98,6 +100,8 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
             }
             ig.music?.pause()
         })
+
+        instanceinator.allInstances.delete(this)
     }
 
     drawLabels() {
