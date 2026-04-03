@@ -81,7 +81,7 @@ class Instanceinator {
     ]
 
     resetInstanceIdCounter() {
-        if (Object.keys(instanceinator.instances).length != 1)
+        if (instanceinator.allInstances.size != 1)
             throw new Error('instanceinator.instances need to be empty when calling resetInstanceIdCounter!')
         this.idCounter = 1
     }

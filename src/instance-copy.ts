@@ -209,10 +209,8 @@ function afterApplyIg(
     igset('guiImage', new ig.GuiImage())
     igset('light', new ig.Light())
     igset('weather', new instanceinator.classes.Weather())
-    // @ts-expect-error
     igset('navigation', new ig.Navigation())
     igset('mapStyle', new ig.MapStyle())
-    // @ts-expect-error
     igset('mapImage', new ig.MapImageManager())
     igset('overlay', new ig.Overlay())
     igset('dreamFx', new ig.DreamFx())
@@ -236,7 +234,6 @@ function afterApplySc(
     s: InstanceinatorInstance,
     gameAddons: any[]
 ) {
-    // @ts-expect-error
     gameAddons.push(new sc.VersionTracker())
     scset('globalinput', new sc.GlobalInput())
     scset('fontsystem', new sc.FontSystem())
@@ -259,11 +256,9 @@ function afterApplySc(
     scset('pvp', new sc.PvpModel())
     scset('newgame')
     scset('enemyBooster', new sc.EnemyBooster())
-    // @ts-expect-error
     scset('gameCode', new sc.GameCode())
     scset('mapInteract', new sc.MapInteract())
     scset('elevatorModel', new sc.ElevatorModel())
-    // @ts-expect-error
     scset('skipInteract', new sc.SkipInteract())
     scset('npcRunner', new sc.NpcRunnerSpawner())
     scset('party', new sc.PartyModel())
@@ -301,7 +296,7 @@ export async function copyInstance(
     config: InstanceinatorInstanceConfig,
     { preLoad, cacheKey, hideTitleScreen, noAppend }: InstanceinatorCopyInstanceConfig = {}
 ): Promise<InstanceinatorInstance> {
-    // console.time('instance copy' + config.name)
+    console.time('instance copy' + config.name)
 
     let ns: InstanceinatorInstance
     if (cacheKey && (instanceinator.cachedInstances[cacheKey] ?? []).length > 0) {
@@ -351,7 +346,7 @@ export async function copyInstance(
     }
     if (!noAppend) instanceinator.append(ns)
 
-    // console.timeEnd('instance copy' + config.name)
+    console.timeEnd('instance copy' + config.name)
 
     return ns
 }
