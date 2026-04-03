@@ -109,13 +109,13 @@ class Instanceinator {
                 if (!cacheKey) throw new Error('called createCachedInstances without a cacheKey in copyConfig!')
                 const arr = (this.cachedInstances[cacheKey] ??= [])
                 arr.push(
-                    copyInstance(
+                    this.copy(
                         baseInst,
                         {
                             name: `cached-${cacheKey}-${Date.now()}-${i}`,
                             display: false,
                         },
-                        { ...copyConfig, cacheKey: undefined }
+                        { ...copyConfig, cacheKey: undefined, noAppend: true }
                     )
                 )
             })

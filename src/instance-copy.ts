@@ -293,63 +293,65 @@ export interface InstanceinatorCopyInstanceConfig {
     preLoad?: (inst: InstanceinatorInstance) => void
     cacheKey?: string
     hideTitleScreen?: boolean
+    noAppend?: boolean
 }
 
 export async function copyInstance(
     s: InstanceinatorInstance,
     config: InstanceinatorInstanceConfig,
-    { preLoad, cacheKey, hideTitleScreen }: InstanceinatorCopyInstanceConfig = {}
+    { preLoad, cacheKey, hideTitleScreen, noAppend }: InstanceinatorCopyInstanceConfig = {}
 ): Promise<InstanceinatorInstance> {
     // console.time('instance copy' + config.name)
+
+    let ns: InstanceinatorInstance
     if (cacheKey && (instanceinator.cachedInstances[cacheKey] ?? []).length > 0) {
-        const ns = await instanceinator.cachedInstances[cacheKey].shift()!
+        ns = await instanceinator.cachedInstances[cacheKey].shift()!
         ns.setConfig(config)
         ns.display = !!config.display
-        // console.timeEnd('instance copy' + config.name)
-        return ns
-    }
+    } else {
+        const origIg = instanceinator.id
 
-    const origIg = instanceinator.id
+        const gameAddons: any[] = []
+        const { ig, igset, igToInit } = initIg(s, gameAddons)
+        const { sc, scset, scToInit } = initSc(s, gameAddons)
+        const { modmanager } = initModManager(s)
+        const { nax } = initNax(s)
 
-    const gameAddons: any[] = []
-    const { ig, igset, igToInit } = initIg(s, gameAddons)
-    const { sc, scset, scToInit } = initSc(s, gameAddons)
-    const { modmanager } = initModManager(s)
-    const { nax } = initNax(s)
+        ns = new InstanceinatorInstance({ ig, sc, modmanager, nax }, config)
+        ns.ig.hideTitleScreen = hideTitleScreen
 
-    const ns = new InstanceinatorInstance({ ig, sc, modmanager, nax }, config)
+        let promise!: Promise<void>
+        let loader!: InstanceType<typeof instanceinator.classes.StartLoader>
 
-    ns.ig.hideTitleScreen = hideTitleScreen
+        runTask(ns, () => {
+            afterApplyIg(ig, igset, igToInit, s, ns)
+            afterApplySc(sc, scset, scToInit, s, gameAddons)
 
-    let promise!: Promise<void>
-    let loader!: InstanceType<typeof instanceinator.classes.StartLoader>
+            ns.display = !!config.display
 
-    runTask(ns, () => {
-        afterApplyIg(ig, igset, igToInit, s, ns)
-        afterApplySc(sc, scset, scToInit, s, gameAddons)
+            ig.initGameAddons = () => gameAddons
 
-        ns.display = !!config.display
+            if (preLoad) preLoad(ns)
 
-        ig.initGameAddons = () => gameAddons
+            ig.ready = true
+            loader = new instanceinator.classes.StartLoader(instanceinator.classes.CrossCode)
+            ig.mainLoader = loader
 
-        if (preLoad) preLoad(ns)
-
-        ig.ready = true
-        loader = new instanceinator.classes.StartLoader(instanceinator.classes.CrossCode)
-        ig.mainLoader = loader
-
-        promise = new Promise<void>(res => {
-            loader.readyCallback = res
+            promise = new Promise<void>(res => {
+                loader.readyCallback = res
+            })
+            loader.load()
         })
-        loader.load()
-    })
 
-    await promise
+        await promise
 
-    loader.readyCallback = undefined
+        loader.readyCallback = undefined
 
-    instanceinator.instances[origIg].apply()
-    instanceinator.append(ns)
+        instanceinator.instances[origIg].apply()
+    }
+    if (!noAppend) instanceinator.append(ns)
+
     // console.timeEnd('instance copy' + config.name)
+
     return ns
 }
