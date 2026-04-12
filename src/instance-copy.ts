@@ -6,7 +6,7 @@ const ObjectKeysT: <K extends string | number | symbol, V>(object: Record<K, V>)
 
 type SetFunc = (name: string, to?: any) => void
 
-function initIg(s: InstanceinatorInstance, gameAddons: any[]) {
+function initIgSc(s: InstanceinatorInstance, gameAddons: (() => void)[]) {
     const ig: typeof window.ig = {} as any
     const igAny = ig as any
     const igToInit: string[] = []
@@ -30,9 +30,6 @@ function initIg(s: InstanceinatorInstance, gameAddons: any[]) {
     const igset: SetFunc = (name, to) => {
         igAny[name] = to ?? s.ig[name as keyof typeof s.ig]
         igToInit.erase(name)
-        if (igAny[name] instanceof ig.GameAddon) {
-            gameAddons.push(igAny[name])
-        }
     }
 
     igset('perf', { ...s.ig.perf })
@@ -46,17 +43,15 @@ function initIg(s: InstanceinatorInstance, gameAddons: any[]) {
     igset('dom')
     igset('global')
     igset('profile', { ...s.ig.profile })
+    igset('imageAtlas')
     igset('jsonTemplate')
     igset('database')
     igset('modules')
     igset('langFileList')
     igset('cacheList')
     igset('dataBrowser')
-    igset('extensions', new instanceinator.classes.ExtensionManager())
-    igset('lang')
     igset('globalSettings')
     igset('terrain')
-    igset('soundManager')
 
     /* cc-variable-charge-time */
     igset('onChargeTimingsOptionChange')
@@ -66,12 +61,8 @@ function initIg(s: InstanceinatorInstance, gameAddons: any[]) {
 
     ig.ScreenBufferPool = { ...s.ig.ScreenBufferPool, handleList: [], freeBuffers: [] }
 
-    gameAddons.push(...s.ig.game.addons.preUpdate.filter(a => !('classId' in a)))
+    gameAddons.push(...s.ig.game.addons.preUpdate.filter(a => !('classId' in a)).map(a => () => a))
 
-    return { ig, igset, igToInit }
-}
-
-function initSc(s: InstanceinatorInstance, gameAddons: any[]) {
     const sc: typeof window.sc = {} as any
     const scAny = sc as any
     const scToInit: string[] = []
@@ -94,13 +85,7 @@ function initSc(s: InstanceinatorInstance, gameAddons: any[]) {
     const scset: SetFunc = (name, to) => {
         scAny[name] = to ?? s.sc[name as keyof typeof s.sc]
         scToInit.erase(name)
-        if (scAny[name] instanceof ig.GameAddon) {
-            gameAddons.push(scAny[name])
-        }
     }
-
-    scset('skilltree')
-    scset('version')
 
     /* memory leak fixes */
     sc.TeleportCentralMap = { ...s.sc.TeleportCentralMap, fields: {} }
@@ -112,7 +97,7 @@ function initSc(s: InstanceinatorInstance, gameAddons: any[]) {
     /* nax-ccuilib  */
     sc.QuickRingMenu = sc.QuickRingMenu.extend({})
 
-    return { sc, scset, scToInit }
+    return { ig, igset, igToInit, sc, scset, scToInit }
 }
 
 function initModManager(s: InstanceinatorInstance) {
@@ -172,16 +157,100 @@ function createDomElements(id: number) {
     }
 }
 
-function afterApplyIg(
+function getAddonList(s: InstanceinatorInstance): (() => ig.GameAddon)[] {
+    const list: (() => ig.GameAddon)[] = []
+    list.push(() => (ig.gamepad = s.ig.gamepad))
+    list.push(() => (ig.storage = s.ig.storage))
+    list.push(() => (ig.bgm = new ig.Bgm()))
+    list.push(() => (ig.camera = new ig.Camera()))
+    list.push(() => (ig.rumble = new ig.Rumble()))
+    list.push(() => (ig.slowMotion = new ig.SlowMotion()))
+    list.push(() => (ig.gui = new instanceinator.classes.Gui()))
+    list.push(() => (ig.guiImage = new ig.GuiImage()))
+    list.push(() => (ig.light = new ig.Light()))
+    list.push(() => (ig.weather = new instanceinator.classes.Weather()))
+    list.push(() => (ig.navigation = new ig.Navigation()))
+    list.push(() => (ig.mapStyle = new ig.MapStyle()))
+    list.push(() => (ig.mapImage = new ig.MapImageManager()))
+    list.push(() => (ig.overlay = new ig.Overlay()))
+    list.push(() => (ig.dreamFx = new ig.DreamFx()))
+    list.push(() => (ig.screenBlur = new ig.ScreenBlur()))
+    list.push(() => (ig.interact = new ig.InteractManager()))
+    list.push(() => (ig.envParticles = new ig.EnvParticles()))
+    list.push(() => (ig.mapSounds = new ig.MapSounds()))
+    list.push(() => (ig.greenworks = s.ig.greenworks))
+
+    list.push(() => new sc.VersionTracker())
+    list.push(() => (sc.globalinput = new sc.GlobalInput()))
+    list.push(() => (sc.timers = new sc.TimersModel()))
+    list.push(() => (sc.stats = new sc.StatsModel()))
+    list.push(() => (sc.trophies = new sc.TrophyManager()))
+    list.push(() => (sc.autoControl = new sc.AutoControl()))
+    list.push(() => (sc.message = new sc.MessageModel()))
+    list.push(() => (sc.options = new sc.OptionModel()))
+    list.push(() => (sc.quickmodel = new sc.QuickMenuModel()))
+    list.push(() => (sc.map = new sc.MapModel()))
+    list.push(() => (sc.lore = new sc.LoreModel()))
+    list.push(() => (sc.trade = new sc.TradeModel()))
+    list.push(() => (sc.menu = new sc.MenuModel()))
+    list.push(() => (sc.model = new instanceinator.classes.GameModel()))
+
+    list.push(() => (sc.detectors = new sc.Detectors()))
+    list.push(() => (sc.combat = new sc.Combat()))
+    list.push(() => (sc.pvp = new sc.PvpModel()))
+    list.push(() => (sc.newgame = s.sc.newgame))
+    list.push(() => (sc.enemyBooster = new sc.EnemyBooster()))
+    list.push(() => (sc.gameCode = new sc.GameCode()))
+    list.push(() => (sc.mapInteract = new sc.MapInteract()))
+    list.push(() => (sc.elevatorModel = new sc.ElevatorModel()))
+    list.push(() => (sc.skipInteract = new sc.SkipInteract()))
+    list.push(() => (sc.npcRunner = new sc.NpcRunnerSpawner()))
+    list.push(() => (sc.party = new sc.PartyModel()))
+    list.push(() => {
+        sc.playerSkins = new sc.PlayerSkinLibrary()
+        sc.playerSkins.skins = s.sc.playerSkins.skins
+        sc.playerSkins.itemToSkin = s.sc.playerSkins.itemToSkin
+        return sc.playerSkins
+    })
+    list.push(() => (sc.bounceSwitchGroups = new sc.BounceSwitchGroups()))
+    list.push(() => (sc.inputForcer = new sc.InputForcer()))
+    list.push(() => s.sc.savePreset)
+    list.push(() => (sc.quests = new instanceinator.classes.QuestModel()))
+    list.push(() => (sc.commonEvents = new instanceinator.classes.CommonEvents()))
+    list.push(() => (sc.voiceActing = s.sc.voiceActing))
+    list.push(() => (sc.credits = new sc.CreditsManager()))
+    list.push(() => {
+        sc.arena = new sc.Arena()
+        sc.arena.cups = s.sc.arena.cups
+        return sc.arena
+    })
+    list.push(() => (sc.gamesense = s.sc.gamesense))
+    list.push(() => (sc.betaControls = new sc.BetaControls()))
+    list.push(() => (ig.langEdit = s.ig.langEdit))
+
+    return list
+}
+
+function afterApply(
     ig: typeof window.ig,
     igset: SetFunc,
     igToInit: string[],
+    sc: typeof window.sc,
+    scset: SetFunc,
+    scToInit: string[],
     s: InstanceinatorInstance,
     ns: InstanceinatorInstance
 ) {
     const { canvasId, gameId } = createDomElements(ns.id)
 
     igset('classIdToClass')
+    igset('spritePool', new ig.SpritePool())
+    igset('extensions', new instanceinator.classes.ExtensionManager())
+    scset('inventory', new sc.Inventory())
+    scset('version')
+    scset('control', new sc.Control())
+    scset('fontsystem', new sc.FontSystem())
+    scset('skilltree')
     igset(
         'system',
         new instanceinator.classes.System(
@@ -193,93 +262,14 @@ function afterApplyIg(
             s.ig.system.realWidth / s.ig.system.width
         )
     )
+    igToInit.erase('vars')
+    igset('lang')
     igset('input', new ig.Input())
+    igset('soundManager')
     igset('music', new ig.Music())
-    igset('imageAtlas')
-    igset('spritePool', new ig.SpritePool())
-
-    /* addons */
-    igset('gamepad')
-    igset('storage')
-    igset('bgm', new ig.Bgm())
-    igset('camera', new ig.Camera())
-    igset('rumble', new ig.Rumble())
-    igset('slowMotion', new ig.SlowMotion())
-    igset('gui', new instanceinator.classes.Gui())
-    igset('guiImage', new ig.GuiImage())
-    igset('light', new ig.Light())
-    igset('weather', new instanceinator.classes.Weather())
-    igset('navigation', new ig.Navigation())
-    igset('mapStyle', new ig.MapStyle())
-    igset('mapImage', new ig.MapImageManager())
-    igset('overlay', new ig.Overlay())
-    igset('dreamFx', new ig.DreamFx())
-    igset('screenBlur', new ig.ScreenBlur())
-    igset('interact', new ig.InteractManager())
-    igset('envParticles', new ig.EnvParticles())
-    igset('mapSounds', new ig.MapSounds())
-    igset('greenworks')
-
-    igset('langEdit')
 
     igToInit.erase('game')
     igToInit.erase('mainLoader')
-    igToInit.erase('vars')
-}
-
-function afterApplySc(
-    sc: typeof window.sc,
-    scset: SetFunc,
-    scToInit: string[],
-    s: InstanceinatorInstance,
-    gameAddons: any[]
-) {
-    gameAddons.push(new sc.VersionTracker())
-    scset('globalinput', new sc.GlobalInput())
-    scset('fontsystem', new sc.FontSystem())
-    scset('timers', new sc.TimersModel())
-    scset('stats', new sc.StatsModel())
-    // @ts-expect-error
-    scset('trophies', new sc.TrophyManager())
-    scset('autoControl', new sc.AutoControl())
-    // @ts-expect-error
-    scset('message', new sc.MessageModel())
-    scset('options', new sc.OptionModel())
-    scset('quickmodel', new sc.QuickMenuModel())
-    scset('map', new sc.MapModel())
-    scset('lore', new sc.LoreModel())
-    scset('trade', new sc.TradeModel())
-    scset('menu', new sc.MenuModel())
-    scset('model', new instanceinator.classes.GameModel())
-    scset('detectors', new sc.Detectors())
-    scset('combat', new sc.Combat())
-    scset('pvp', new sc.PvpModel())
-    scset('newgame')
-    scset('enemyBooster', new sc.EnemyBooster())
-    scset('gameCode', new sc.GameCode())
-    scset('mapInteract', new sc.MapInteract())
-    scset('elevatorModel', new sc.ElevatorModel())
-    scset('skipInteract', new sc.SkipInteract())
-    scset('npcRunner', new sc.NpcRunnerSpawner())
-    scset('party', new sc.PartyModel())
-    scset('playerSkins', new sc.PlayerSkinLibrary())
-    sc.playerSkins.skins = s.sc.playerSkins.skins
-    sc.playerSkins.itemToSkin = s.sc.playerSkins.itemToSkin
-    scset('bounceSwitchGroups', new sc.BounceSwitchGroups())
-    scset('inputForcer', new sc.InputForcer())
-    scset('savePreset')
-    scset('quests', new instanceinator.classes.QuestModel())
-    scset('commonEvents', new instanceinator.classes.CommonEvents())
-    scset('voiceActing')
-    scset('credits', new sc.CreditsManager())
-    scset('arena', new sc.Arena())
-    sc.arena.cups = s.sc.arena.cups
-    scset('gamesense')
-    scset('betaControls', new sc.BetaControls())
-
-    scset('control', new sc.Control())
-    scset('inventory', new sc.Inventory())
-    scset('keyBinderGui', new sc.KeyBinderGui())
 
     scToInit.erase('gui')
 }
@@ -307,8 +297,7 @@ export async function copyInstance(
         const origIg = instanceinator.id
 
         const gameAddons: any[] = []
-        const { ig, igset, igToInit } = initIg(s, gameAddons)
-        const { sc, scset, scToInit } = initSc(s, gameAddons)
+        const { ig, igset, igToInit, sc, scset, scToInit } = initIgSc(s, gameAddons)
         const { modmanager } = initModManager(s)
         const { nax } = initNax(s)
 
@@ -319,12 +308,14 @@ export async function copyInstance(
         let loader!: InstanceType<typeof instanceinator.classes.StartLoader>
 
         runTask(ns, () => {
-            afterApplyIg(ig, igset, igToInit, s, ns)
-            afterApplySc(sc, scset, scToInit, s, gameAddons)
+            afterApply(ig, igset, igToInit, sc, scset, scToInit, s, ns)
 
             ns.display = !!config.display
 
-            ig.initGameAddons = () => gameAddons
+            ig.initGameAddons = () => {
+                const addons = getAddonList(s)
+                return addons.map(a => a())
+            }
 
             if (preLoad) preLoad(ns)
 

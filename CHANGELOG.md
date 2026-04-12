@@ -9,6 +9,10 @@
 - Add instance ahead of time creation functionality to improve performance
 - Add instance copy opiton to hide title screen
 
+### Fixed
+
+- Fix invalid game addon initialization order on instance copy (fixes compatibility with some mods)
+
 ## [1.1.1] 2026-04-03
 
 ### Fixed
