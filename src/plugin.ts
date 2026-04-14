@@ -109,6 +109,11 @@ class Instanceinator {
         return this.allInstances
     }
 
+    getCachedInstanceCount(cacheKey?: string) {
+        if (cacheKey) return this.cachedInstances[cacheKey]?.length ?? 0
+        return Object.values(this.cachedInstances).reduce((acc, v) => acc + v.length, 0)
+    }
+
     async createCachedInstances(baseInst: InstanceinatorInstance, configs: InstanceinatorCopyInstanceConfig[]) {
         return Promise.all(
             configs.map(async (copyConfig, i) => {
