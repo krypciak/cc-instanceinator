@@ -281,12 +281,14 @@ export interface InstanceinatorCopyInstanceConfig {
     noAppend?: boolean
 }
 
+const PROFILE = false
+
 export async function copyInstance(
     s: InstanceinatorInstance,
     config: InstanceinatorInstanceConfig,
     { preLoad, cacheKey, hideTitleScreen, noAppend }: InstanceinatorCopyInstanceConfig = {}
 ): Promise<InstanceinatorInstance> {
-    console.time('instance copy' + config.name)
+    PROFILE && console.time('instance copy' + config.name)
 
     let ns: InstanceinatorInstance
     if (cacheKey && (instanceinator.cachedInstances[cacheKey] ?? []).length > 0) {
@@ -337,7 +339,7 @@ export async function copyInstance(
     }
     if (!noAppend) instanceinator.append(ns)
 
-    console.timeEnd('instance copy' + config.name)
+    PROFILE && console.timeEnd('instance copy' + config.name)
 
     return ns
 }
