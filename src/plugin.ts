@@ -11,6 +11,7 @@ import { FpsLabelDrawClass, IdLabelDrawClass, type LabelDrawClass } from './labe
 import { setMusicInstanceId } from './fixes'
 import { classes, initClasses } from './custom-classes'
 import { injectTitleScreenHide } from './title-screen-hide'
+import { injectPerformance } from './performance'
 
 import './class-id-to-class'
 
@@ -38,6 +39,7 @@ export default class CCInstanceinator implements PluginClass {
         injectTiling()
         injectFocus()
         injectTitleScreenHide()
+        injectPerformance()
 
         if (window.crossnode?.options.test) {
             import('./tests')

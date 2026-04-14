@@ -12,6 +12,7 @@
 ### Fixed
 
 - Fix invalid game addon initialization order on instance copy (fixes compatibility with some mods)
+- Improve instance creation time
 
 ## [1.1.1] 2026-04-03
 

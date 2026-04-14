@@ -2,6 +2,7 @@ import type {} from 'ccmodmanager/types/gui/gui'
 import { IdLabelDrawClass } from './label-draw'
 import { injectFixes } from './fixes'
 import { filterInstanceObjectsFromArray, runTask, scheduleTask } from './inst-util'
+import { initBuffersOnDrawEnable } from './performance'
 
 type SoundPlayConditionFunc = (this: InstanceinatorInstance) => boolean
 
@@ -68,6 +69,8 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
 
         const displayType = value ? 'initial' : 'none'
         this.ig.system.inputDom.style.display = displayType
+
+        if (this.ig.perf.draw) initBuffersOnDrawEnable(this)
 
         if (value) {
             this.ig.music.resume(0.5)
