@@ -9,6 +9,10 @@
 - Add instance ahead of time creation functionality to improve performance
 - Add instance copy opiton to hide title screen
 
+### Changed
+
+- Do not share ig.SoundManager across instances
+
 ### Fixed
 
 - Fix invalid game addon initialization order on instance copy (fixes compatibility with some mods)

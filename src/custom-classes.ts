@@ -99,6 +99,16 @@ export function initClasses() {
             this.rain = new ig.Rain()
         },
     })
+    const SoundManager: ig.SoundManagerConstructor = ig.SoundManager.extend({
+        _createWebAudioContext() {
+            this.hasWebAudio = true
+            const baseSoundManager = instanceinator.instances[0].ig.soundManager
+            this.context = baseSoundManager.context
+            this.volumes = baseSoundManager.volumes
+
+            this.buffers = baseSoundManager.buffers
+        },
+    })
 
     const classes1 = {
         System,
@@ -110,6 +120,7 @@ export function initClasses() {
         ExtensionManager,
         GameModel,
         Weather,
+        SoundManager,
     }
     instanceinator.classes = classes = classes1
     return classes1

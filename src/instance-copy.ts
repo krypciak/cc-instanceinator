@@ -265,7 +265,7 @@ function afterApply(
     igToInit.erase('vars')
     igset('lang')
     igset('input', new ig.Input())
-    igset('soundManager')
+    igset('soundManager', new instanceinator.classes.SoundManager())
     igset('music', new ig.Music())
 
     igToInit.erase('game')

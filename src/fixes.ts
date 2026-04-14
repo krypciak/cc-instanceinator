@@ -220,7 +220,7 @@ function dialogFix() {
 }
 
 function shouldMuteMusic(inst: InstanceinatorInstance) {
-    return instanceinator.musicInstanceId != inst.id // inst.display === false
+    return instanceinator.musicInstanceId != inst.id
 }
 
 function updateMusicTrackVolume(music: ig.Music, trackRaw: ig.Track | undefined | null) {
@@ -349,8 +349,39 @@ function musicFix() {
     })
 }
 
+declare global {
+    namespace ig {
+        interface SoundManager {
+            intervalId: NodeJS.Timeout
+        }
+    }
+}
+
 function audioFix() {
     ig.SoundManager.inject({
+        init() {
+            const origSetInterval = window.setInterval
+            // @ts-expect-error
+            window.setInterval = (...args: any[]) => {
+                // @ts-expect-error
+                const id = origSetInterval.call(window, ...args)
+                this.intervalId = id
+                return id
+            }
+
+            this.parent()
+
+            window.setInterval = origSetInterval
+        },
+        _updateTracks() {
+            const inst = instanceinator.instances[this._instanceId]
+            if (!inst) {
+                clearInterval(this.intervalId)
+                return
+            }
+            if (!inst.soundPlayCondition()) return
+            return runTask(inst, () => this.parent())
+        },
         requestPlaySoundHandle(groupName, handle) {
             const inst = instanceinator.instances[instanceinator.id]
             if (!inst.soundPlayCondition()) return
