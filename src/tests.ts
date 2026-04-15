@@ -36,7 +36,7 @@ crossnode.registerTest({
         instanceinator.instances[0].apply()
         for (const instance of Object.values(instanceinator.instances)) {
             if (instance.id == 0) continue
-            instanceinator.delete(instance)
+            instanceinator.destroy(instance)
         }
     },
 })
@@ -81,7 +81,7 @@ const test1 = crossnode.registerTest<{
         instanceinator.instances[0].apply()
         for (const instance of Object.values(instanceinator.instances)) {
             if (instance.id == 0) continue
-            instanceinator.delete(instance)
+            instanceinator.destroy(instance)
         }
     },
 })

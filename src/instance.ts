@@ -34,6 +34,8 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
 
     labelDrawClasses: IdLabelDrawClass[]
 
+    destroyed: boolean = false
+
     constructor({ ig, sc, modmanager, nax }: InstanceinatorInstanceGlobals, config: InstanceinatorInstanceConfig) {
         this.id = instanceinator.idCounter++
 
@@ -62,6 +64,7 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
     }
 
     set display(value: boolean) {
+        if (this.destroyed) throw new Error('set InstanceinatorInstance#display when instance destroyed!')
         this._display = value
 
         this.ig.perf.draw =
@@ -83,6 +86,7 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
     }
 
     apply() {
+        if (this.destroyed) throw new Error('called InstanceinatorInstance#apply when instance destroyed!')
         global.ig = window.ig = this.ig
         global.sc = window.sc = this.sc
         global.modmanager = window.modmanager = this.modmanager
@@ -91,7 +95,9 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
         instanceinator.id = this.id
     }
 
-    onDelete() {
+    destroy() {
+        if (this.destroyed) throw new Error('called InstanceinatorInstance#destroy twice!')
+        this.destroyed = true
         const div = this.ig.system?.inputDom
         if (div) document.body.removeChild(div)
 
