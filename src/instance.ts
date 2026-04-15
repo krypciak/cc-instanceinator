@@ -1,6 +1,6 @@
 import type {} from 'ccmodmanager/types/gui/gui'
 import { IdLabelDrawClass } from './label-draw'
-import { injectFixes } from './fixes'
+import { injectFixes } from './fixes/all'
 import { filterInstanceObjectsFromArray, runTask, scheduleTask } from './inst-util'
 import { initBuffersOnDrawEnable } from './performance'
 
@@ -86,7 +86,6 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
     }
 
     apply() {
-        if (this.destroyed) throw new Error('called InstanceinatorInstance#apply when instance destroyed!')
         global.ig = window.ig = this.ig
         global.sc = window.sc = this.sc
         global.modmanager = window.modmanager = this.modmanager
@@ -108,6 +107,8 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
                 if (handle._instanceId == this.id) handle.stop()
             }
             ig.music?.pause()
+
+            ig.mapSounds.onReset()
         })
 
         instanceinator.allInstances.delete(this)
