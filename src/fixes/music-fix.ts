@@ -1,23 +1,45 @@
-import { runTasks } from '../inst-util'
+import { runTask, runTasks } from '../inst-util'
 import { InstanceinatorInstance } from '../instance'
+
+export interface VolumeLockable extends ig.Class {
+    volumeBackup?: number
+
+    setVolume(this: this, volume: number): void
+    isVolumeLocked(this: this): boolean
+    lockVolume(this: this, newVolume?: number): void
+    unlockVolume(this: this): void
+}
+
+export function updateLockableVolume(
+    clazz: ig.Class,
+    lockable: VolumeLockable | undefined | null,
+    shouldMuteFunc: (inst: InstanceinatorInstance) => boolean
+) {
+    if (!lockable) return
+    const inst = instanceinator.instances[clazz._instanceId]
+    const shouldMute = !inst || shouldMuteFunc(inst)
+    // console.log(
+    //     'updateLockableVolume',
+    //     'inst',
+    //     clazz,
+    //     'instanceinator.id:',
+    //     instanceinator.id,
+    //     'isLocked:',
+    //     lockable.isVolumeLocked(),
+    //     'shouldMute:',
+    //     shouldMute
+    // )
+    if (shouldMute) {
+        if (!lockable.isVolumeLocked()) {
+            lockable.lockVolume(0)
+        }
+    } else if (lockable.isVolumeLocked()) {
+        lockable.unlockVolume()
+    }
+}
 
 function shouldMuteMusic(inst: InstanceinatorInstance) {
     return instanceinator.musicInstanceId != inst.id
-}
-
-function updateMusicTrackVolume(music: ig.Music, trackRaw: ig.Track | undefined | null) {
-    if (!trackRaw) return
-    const track = trackRaw as ig.TrackWebAudio
-    const inst = instanceinator.instances[music._instanceId]
-    const shouldMute = !inst || shouldMuteMusic(inst)
-    // console.log('updateMusicTrackVolume', 'ig.music:', music._instanceId, 'instanceinator.id:', instanceinator.id, 'isLocked:', track.isVolumeLocked(), 'shouldMute:', shouldMute)
-    if (shouldMute) {
-        if (!track.isVolumeLocked()) {
-            track.lockVolume(0)
-        }
-    } else if (track.isVolumeLocked()) {
-        track.unlockVolume()
-    }
 }
 
 export function updateMusicInstanceId() {
@@ -30,17 +52,23 @@ export function updateMusicInstanceId() {
 
 declare global {
     namespace ig {
-        interface TrackWebAudio {
-            volumeBackup?: number
-
-            isVolumeLocked(this: this): boolean
-            lockVolume(this: this, newVolume?: number): void
-            unlockVolume(this: this): void
-        }
+        interface TrackWebAudio extends VolumeLockable {}
+        interface TrackDefault extends VolumeLockable {}
     }
 }
 
 export function musicFix() {
+    ig.Music.inject({
+        _intervalStep() {
+            const inst = instanceinator.instances[this._instanceId]
+            if (!inst) {
+                clearInterval(this._interval)
+                return
+            }
+            return runTask(inst, () => this.parent())
+        },
+    })
+
     ig.TrackWebAudio.inject({
         isVolumeLocked() {
             return this.volumeBackup !== undefined
@@ -76,20 +104,20 @@ export function musicFix() {
     ig.Music.inject({
         inbetween(track, volume, fadeIn, volumeMultiplier) {
             this.parent(track, volume, fadeIn, volumeMultiplier)
-            updateMusicTrackVolume(this, track)
+            updateLockableVolume(this, track, shouldMuteMusic)
         },
         _checkCurrentTrackEquality() {
-            updateMusicTrackVolume(this, this.currentTrack?.track)
+            updateLockableVolume(this, this.currentTrack?.track, shouldMuteMusic)
             return this.parent()
         },
         _playTopSong() {
             this.parent()
-            updateMusicTrackVolume(this, this.currentTrack?.track)
+            updateLockableVolume(this, this.currentTrack?.track, shouldMuteMusic)
         },
         onWindowFocusGained() {
             this.parent()
-            updateMusicTrackVolume(this, this.inBetweenTrack?.track)
-            updateMusicTrackVolume(this, this.currentTrack?.track)
+            updateLockableVolume(this, this.inBetweenTrack?.track, shouldMuteMusic)
+            updateLockableVolume(this, this.currentTrack?.track, shouldMuteMusic)
         },
     })
 
