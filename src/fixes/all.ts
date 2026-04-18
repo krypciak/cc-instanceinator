@@ -7,6 +7,7 @@ import { modmanagerFix } from './modmanager-fix'
 import { musicFixPrestart, musicFixPostload } from './music-fix'
 import { nwjsFullscreenFix } from './nwjsFullscreen-fix'
 import { optionModelFix } from './optionModel-fix'
+import { storageFix } from './storage-fix'
 
 export function injectFixesPostload() {
     musicFixPostload()
@@ -22,4 +23,5 @@ export function injectFixesPrestart() {
     musicFixPrestart()
     optionModelFix()
     nwjsFullscreenFix()
+    storageFix()
 }

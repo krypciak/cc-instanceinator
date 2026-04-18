@@ -18,6 +18,7 @@
 - Fix invalid game addon initialization order on instance copy (fixes compatibility with some mods)
 - Improve instance creation time
 - Fix sounds not clearing properly when hiding instances
+- Fix new instances using old global save data
 
 ## [1.1.1] 2026-04-03
 
