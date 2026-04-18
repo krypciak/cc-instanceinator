@@ -104,11 +104,11 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
 
         runTask(this, () => {
             for (const handle of (ig.soundManager?.soundHandles as ig.SoundHandleWebAudio[]) ?? []) {
-                if (handle._instanceId == this.id) handle.stop()
+                handle.pause(true)
+                handle.stop()
             }
             ig.music?.pause()
-
-            ig.mapSounds.onReset()
+            ig.mapSounds?.onReset()
         })
 
         instanceinator.allInstances.delete(this)
