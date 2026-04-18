@@ -5,7 +5,9 @@ const modId = CCInstanceInator.mod.id
 ig.System.inject({
     run() {
         if (crossnode.currentTestId != test1.id) return this.parent()
-        const instances = Object.values(instanceinator.instances).sort((a, b) => a.id - b.id)
+        const instances = Object.values(instanceinator.instances)
+            .filter(inst => inst.ig?.system)
+            .sort((a, b) => a.id - b.id)
 
         if (test1.startSwapping) {
             let nextInst = instances[instances.findIndex(a => a.id == instanceinator.id) + 1]
@@ -36,7 +38,7 @@ crossnode.registerTest({
         instanceinator.instances[0].apply()
         for (const instance of Object.values(instanceinator.instances)) {
             if (instance.id == 0) continue
-            instanceinator.destroy(instance)
+            instance.destroy()
         }
     },
 })
@@ -81,7 +83,7 @@ const test1 = crossnode.registerTest<{
         instanceinator.instances[0].apply()
         for (const instance of Object.values(instanceinator.instances)) {
             if (instance.id == 0) continue
-            instanceinator.destroy(instance)
+            instance.destroy()
         }
     },
 })

@@ -3,7 +3,7 @@ import { runTask } from '../inst-util'
 export function imageAtlasFix() {
     function getPrimaryInstanceId() {
         for (const id in instanceinator.instances) {
-            if (instanceinator.instances[id].ig.perf.draw) return id
+            if (instanceinator.instances[id].ig?.perf?.draw) return id
         }
         return 0
     }

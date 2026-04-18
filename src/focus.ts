@@ -23,6 +23,7 @@ export function injectFocus() {
             this.isMouseOutOfInputDom = true
             ig.system.inputDom.addEventListener('mouseenter', () => {
                 for (const inst of Object.values(instanceinator.instances)) {
+                    if (!inst.ig?.input) return
                     inst.ig.input.isMouseOutOfInputDom = true
                 }
                 this.isMouseOutOfInputDom = false

@@ -1,14 +1,11 @@
 import { runTasks } from './inst-util'
 import { InstanceinatorInstance } from './instance'
 
-export function getDisplayInstances() {
-    return Object.values(instanceinator.instances).filter(i => i.display)
-}
 export function retile() {
     let displayInsts: InstanceinatorInstance[] = []
     const nonDisplayInsts: InstanceinatorInstance[] = []
     for (const inst of Object.values(instanceinator.instances)) {
-        if (inst.display) displayInsts.push(inst)
+        if (inst.display && inst.ig?.system) displayInsts.push(inst)
         else nonDisplayInsts.push(inst)
     }
 

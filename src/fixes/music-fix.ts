@@ -17,7 +17,7 @@ export function updateMusicInstanceId() {
     const id = instanceinator.musicInstanceId
     if (!instanceinator.instances[id]) console.warn(`setMusicInstanceId: instance with id: ${id} doesn't exist!`)
     runTasks(Object.values(instanceinator.instances), () => {
-        for (const track of ig.music.trackStack) updateTrackVolume(ig.music, track.track)
+        for (const track of ig.music?.trackStack ?? []) updateTrackVolume(ig.music, track.track)
     })
 }
 

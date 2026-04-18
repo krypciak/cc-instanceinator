@@ -23,7 +23,6 @@ export class Instanceinator {
     displayId: boolean = false
     displayFps: boolean = false
     cachedInstances: Record<string, Promise<InstanceinatorInstance>[]> = {}
-    allInstances: Set<InstanceinatorInstance> = new Set()
 
     labelDrawClasses: (new (instance: InstanceinatorInstance) => LabelDrawClass)[] = [
         IdLabelDrawClass,
@@ -31,26 +30,9 @@ export class Instanceinator {
     ]
 
     resetInstanceIdCounter() {
-        if (instanceinator.allInstances.size != 1)
+        if (Object.keys(instanceinator.instances).length != 1)
             throw new Error('instanceinator.instances need to be empty when calling resetInstanceIdCounter!')
         this.idCounter = 1
-    }
-
-    append(instance: InstanceinatorInstance) {
-        this.instances[instance.id] = instance
-        this.retile()
-    }
-
-    destroy(instance: InstanceinatorInstance) {
-        if (!this.instances[instance.id]) return
-        if (instance.id == 0) throw new Error('Cannot delete base instance with id 0!')
-        if (instanceinator.id == instance.id)
-            throw new Error(`Cannot delete currently applied instance! id: ${instance.id}`)
-
-        this.instances[instance.id].destroy()
-
-        delete this.instances[instance.id]
-        this.retile()
     }
 
     private _musicInstanceId: number = 0
@@ -62,10 +44,6 @@ export class Instanceinator {
             this._musicInstanceId = id
             updateMusicInstanceId()
         }
-    }
-
-    getAllCreatedInstances() {
-        return this.allInstances
     }
 
     getCachedInstanceCount(cacheKey?: string) {
@@ -86,7 +64,7 @@ export class Instanceinator {
                             name: `cached-${cacheKey}-${Date.now()}-${i}`,
                             display: false,
                         },
-                        { ...copyConfig, cacheKey: undefined, noAppend: true }
+                        { ...copyConfig, cacheKey: undefined }
                     )
                 )
             })

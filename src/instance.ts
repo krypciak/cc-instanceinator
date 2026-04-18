@@ -47,7 +47,7 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
 
         this.labelDrawClasses = instanceinator.labelDrawClasses.map(clazz => new clazz(this))
 
-        instanceinator.allInstances.add(this)
+        instanceinator.instances[this.id] = this
     }
 
     setConfig({
@@ -100,7 +100,10 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
     }
 
     destroy() {
+        if (this.id == 0) throw new Error('Cannot delete base instance with id 0!')
         if (this.destroyed) throw new Error('called InstanceinatorInstance#destroy twice!')
+        if (instanceinator.id == this.id) throw new Error(`Cannot delete currently applied instance! id: ${this.id}`)
+
         this.display = false
         this.destroyed = true
         const div = this.ig.system?.inputDom
@@ -117,7 +120,8 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
             ig.mapSounds?.onReset()
         })
 
-        instanceinator.allInstances.delete(this)
+        delete instanceinator.instances[this.id]
+        instanceinator.retile()
     }
 
     drawLabels() {
