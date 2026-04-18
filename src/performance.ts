@@ -1,5 +1,3 @@
-import type { InstanceinatorInstance } from './instance'
-
 declare global {
     namespace ig {
         interface ScreenBlur {
@@ -86,7 +84,7 @@ export function injectPerformance() {
     })
 }
 
-export function initBuffersOnDrawEnable(inst: InstanceinatorInstance) {
-    inst.ig?.screenBlur?.initBuffers()
-    inst.ig?.light?.initBuffers()
+export function initBuffersOnDrawEnable() {
+    ig.screenBlur?.initBuffers()
+    ig.light?.initBuffers()
 }

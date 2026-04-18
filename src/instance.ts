@@ -76,13 +76,18 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
         const displayType = value ? 'initial' : 'none'
         this.ig.system.inputDom.style.display = displayType
 
-        if (this.ig.perf.draw) initBuffersOnDrawEnable(this)
+        runTask(this, () => {
+            if (ig.perf.draw) initBuffersOnDrawEnable()
 
-        if (value) {
-            this.ig.music.resume(0.5)
-        } else {
-            this.ig.music.pause(0.5)
-        }
+            if (ig.music) {
+                if (value) {
+                    ig.music.resume(0.5)
+                } else {
+                    ig.music.pause(0.5)
+                }
+            }
+            ig.soundManager?.updateMasterVolumeLock()
+        })
     }
 
     apply() {

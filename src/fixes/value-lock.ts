@@ -10,10 +10,6 @@ export class ValueLock<T> {
     isLocked(): boolean {
         return this.backupValue !== undefined
     }
-    // setVolume(volume: number) {
-    //     if (this.isVolumeLocked()) this.volumeBackup = volume
-    //     else return this.parent(volume)
-    // }
 
     lock(newValue: T) {
         if (this.isLocked()) throw new Error('called ValueLock#lock when value is already locked!')

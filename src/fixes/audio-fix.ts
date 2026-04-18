@@ -1,9 +1,15 @@
 import { runTask } from '../inst-util'
+import type { InstanceinatorInstance } from '../instance'
+import { ValueLock } from './value-lock'
 
 declare global {
     namespace ig {
         interface SoundManager {
             intervalId: NodeJS.Timeout
+
+            masterVolumeLock: ValueLock<number>
+
+            updateMasterVolumeLock(this: this): void
         }
     }
 }
@@ -25,10 +31,21 @@ function captureIntervalId(func: () => void): NodeJS.Timeout {
     return intervalId
 }
 
+function shouldMuteAudio(inst: InstanceinatorInstance | undefined): boolean {
+    return !inst?.soundPlayCondition()
+}
+
 export function audioFix() {
     ig.SoundManager.inject({
         init() {
             this.intervalId = captureIntervalId(() => this.parent())
+            this.masterVolumeLock = new ValueLock(
+                0,
+                () => this.volumes.master.gain.value,
+                vol => {
+                    this.volumes.master.gain.value = vol
+                }
+            )
         },
         _updateTracks() {
             const inst = instanceinator.instances[this._instanceId]
@@ -39,11 +56,18 @@ export function audioFix() {
             if (!inst.soundPlayCondition()) return
             return runTask(inst, () => this.parent())
         },
-        requestPlaySoundHandle(groupName, handle) {
-            const inst = instanceinator.instances[instanceinator.id]
-            if (!inst.soundPlayCondition()) return
-
-            return this.parent(groupName, handle)
+        update() {
+            this.parent()
+            this.updateMasterVolumeLock()
+        },
+        updateMasterVolumeLock() {
+            const inst = instanceinator.instances[this._instanceId]
+            const shouldMute = shouldMuteAudio(inst)
+            this.masterVolumeLock.updateLock(shouldMute)
+        },
+        setMasterVolume(volume) {
+            if (this.masterVolumeLock.isLocked()) this.masterVolumeLock.setBackup(volume)
+            else return this.parent(volume)
         },
     })
 }

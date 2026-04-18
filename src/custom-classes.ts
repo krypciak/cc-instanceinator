@@ -100,13 +100,10 @@ export function initClasses() {
         },
     })
     const SoundManager: ig.SoundManagerConstructor = ig.SoundManager.extend({
-        _createWebAudioContext() {
-            this.hasWebAudio = true
+        init() {
             const baseSoundManager = instanceinator.instances[0].ig.soundManager
-            this.context = baseSoundManager.context
-            this.volumes = baseSoundManager.volumes
-
             this.buffers = baseSoundManager.buffers
+            this.parent()
         },
     })
 

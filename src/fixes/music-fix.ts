@@ -2,14 +2,14 @@ import { runTask, runTasks } from '../inst-util'
 import { InstanceinatorInstance } from '../instance'
 import { ValueLock } from './value-lock'
 
-function shouldMuteMusic(inst: InstanceinatorInstance) {
-    return instanceinator.musicInstanceId != inst.id
+function shouldMuteMusic(inst: InstanceinatorInstance | undefined) {
+    return !inst?.ig?.music || instanceinator.musicInstanceId != inst.id
 }
 
 function updateTrackVolume(clazz: ig.Class, track: ig.Track | undefined | null) {
     if (!track) return
     const inst = instanceinator.instances[clazz._instanceId]
-    const shouldMute = !inst || shouldMuteMusic(inst)
+    const shouldMute = shouldMuteMusic(inst)
     track.volumeLock.updateLock(shouldMute)
 }
 
