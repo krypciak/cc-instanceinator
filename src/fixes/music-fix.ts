@@ -20,14 +20,12 @@ function updateMusicTrackVolume(music: ig.Music, trackRaw: ig.Track | undefined 
     }
 }
 
-export function setMusicInstanceId(id: number) {
+export function updateMusicInstanceId() {
+    const id = instanceinator.musicInstanceId
     if (!instanceinator.instances[id]) console.warn(`setMusicInstanceId: instance with id: ${id} doesn't exist!`)
-    if (instanceinator.musicInstanceId !== id) {
-        instanceinator.musicInstanceId = id
-        runTasks(Object.values(instanceinator.instances), () => {
-            for (const track of ig.music.trackStack) updateMusicTrackVolume(ig.music, track.track)
-        })
-    }
+    runTasks(Object.values(instanceinator.instances), () => {
+        for (const track of ig.music.trackStack) updateLockableVolume(ig.music, track.track, shouldMuteMusic)
+    })
 }
 
 declare global {

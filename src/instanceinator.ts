@@ -3,7 +3,7 @@ import { InstanceinatorInstance } from './instance'
 import { retile } from './tiler'
 import { copyInstance, type InstanceinatorCopyInstanceConfig } from './instance-copy'
 import { FpsLabelDrawClass, IdLabelDrawClass, type LabelDrawClass } from './label-draw'
-import { setMusicInstanceId } from './fixes/music-fix'
+import { updateMusicInstanceId } from './fixes/music-fix'
 import { classes } from './custom-classes'
 
 declare global {
@@ -22,7 +22,6 @@ export class Instanceinator {
     idCounter: number = 0
     displayId: boolean = false
     displayFps: boolean = false
-    musicInstanceId: number = 0
     cachedInstances: Record<string, Promise<InstanceinatorInstance>[]> = {}
     allInstances: Set<InstanceinatorInstance> = new Set()
 
@@ -52,6 +51,17 @@ export class Instanceinator {
 
         delete this.instances[instance.id]
         this.retile()
+    }
+
+    private _musicInstanceId: number = 0
+    get musicInstanceId() {
+        return this._musicInstanceId
+    }
+    set musicInstanceId(id: number) {
+        if (this._musicInstanceId !== id) {
+            this._musicInstanceId = id
+            updateMusicInstanceId()
+        }
     }
 
     getAllCreatedInstances() {
@@ -85,6 +95,5 @@ export class Instanceinator {
 
     retile = retile
     copy = copyInstance
-    setMusicInstanceId = setMusicInstanceId
     classes!: typeof classes
 }

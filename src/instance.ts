@@ -23,7 +23,6 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
     id: number
 
     name!: string
-    private _display!: boolean
     forceDraw!: boolean
     soundPlayCondition!: SoundPlayConditionFunc
 
@@ -63,6 +62,10 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
         this.soundPlayCondition = soundPlayCondition
     }
 
+    private _display!: boolean
+    get display() {
+        return this._display
+    }
     set display(value: boolean) {
         if (this.destroyed) throw new Error('set InstanceinatorInstance#display when instance destroyed!')
         this._display = value
@@ -80,9 +83,6 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
         } else {
             this.ig.music.pause(0.5)
         }
-    }
-    get display() {
-        return this._display
     }
 
     apply() {
