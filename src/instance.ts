@@ -101,6 +101,7 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
 
     destroy() {
         if (this.destroyed) throw new Error('called InstanceinatorInstance#destroy twice!')
+        this.display = false
         this.destroyed = true
         const div = this.ig.system?.inputDom
         if (div) document.body.removeChild(div)
@@ -108,9 +109,9 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
         ig.storage.listeners = filterInstanceObjectsFromArray(ig.storage.listeners, this.id)
 
         runTask(this, () => {
-            for (const handle of (ig.soundManager?.soundHandles as ig.SoundHandleWebAudio[]) ?? []) {
-                handle.pause(true)
+            for (const handle of ig.soundManager?.soundHandles ?? []) {
                 handle.stop()
+                handle._disconnect()
             }
             ig.music?.pause()
             ig.mapSounds?.onReset()
