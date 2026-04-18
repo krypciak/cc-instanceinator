@@ -1,63 +1,52 @@
 import { runTask, runTasks } from '../inst-util'
 import { InstanceinatorInstance } from '../instance'
-
-export interface VolumeLockable extends ig.Class {
-    volumeBackup?: number
-
-    setVolume(this: this, volume: number): void
-    isVolumeLocked(this: this): boolean
-    lockVolume(this: this, newVolume?: number): void
-    unlockVolume(this: this): void
-}
-
-export function updateLockableVolume(
-    clazz: ig.Class,
-    lockable: VolumeLockable | undefined | null,
-    shouldMuteFunc: (inst: InstanceinatorInstance) => boolean
-) {
-    if (!lockable) return
-    const inst = instanceinator.instances[clazz._instanceId]
-    const shouldMute = !inst || shouldMuteFunc(inst)
-    // console.log(
-    //     'updateLockableVolume',
-    //     'inst',
-    //     clazz,
-    //     'instanceinator.id:',
-    //     instanceinator.id,
-    //     'isLocked:',
-    //     lockable.isVolumeLocked(),
-    //     'shouldMute:',
-    //     shouldMute
-    // )
-    if (shouldMute) {
-        if (!lockable.isVolumeLocked()) {
-            lockable.lockVolume(0)
-        }
-    } else if (lockable.isVolumeLocked()) {
-        lockable.unlockVolume()
-    }
-}
+import { ValueLock } from './value-lock'
 
 function shouldMuteMusic(inst: InstanceinatorInstance) {
     return instanceinator.musicInstanceId != inst.id
+}
+
+function updateTrackVolume(clazz: ig.Class, track: ig.Track | undefined | null) {
+    if (!track) return
+    const inst = instanceinator.instances[clazz._instanceId]
+    const shouldMute = !inst || shouldMuteMusic(inst)
+    track.volumeLock.updateLock(shouldMute)
 }
 
 export function updateMusicInstanceId() {
     const id = instanceinator.musicInstanceId
     if (!instanceinator.instances[id]) console.warn(`setMusicInstanceId: instance with id: ${id} doesn't exist!`)
     runTasks(Object.values(instanceinator.instances), () => {
-        for (const track of ig.music.trackStack) updateLockableVolume(ig.music, track.track, shouldMuteMusic)
+        for (const track of ig.music.trackStack) updateTrackVolume(ig.music, track.track)
     })
 }
 
 declare global {
     namespace ig {
-        interface TrackWebAudio extends VolumeLockable {}
-        interface TrackDefault extends VolumeLockable {}
+        interface TrackWebAudio {
+            volumeLock: ValueLock<number>
+        }
     }
 }
 
-export function musicFix() {
+export function musicFixPostload() {
+    ig.TrackWebAudio.inject({
+        init(...args) {
+            this.volumeLock = new ValueLock(
+                0,
+                () => Math.sqrt(this._volume / this.baseVolume),
+                vol => this.setVolume(vol)
+            )
+            this.parent(...args)
+        },
+        setVolume(volume) {
+            if (this.volumeLock?.isLocked()) this.volumeLock.setBackup(volume)
+            else return this.parent(volume)
+        },
+    })
+}
+
+export function musicFixPrestart() {
     ig.Music.inject({
         _intervalStep() {
             const inst = instanceinator.instances[this._instanceId]
@@ -65,38 +54,16 @@ export function musicFix() {
                 clearInterval(this._interval)
                 return
             }
+            if (shouldMuteMusic(inst)) return
             return runTask(inst, () => this.parent())
         },
     })
 
-    ig.TrackWebAudio.inject({
-        isVolumeLocked() {
-            return this.volumeBackup !== undefined
-        },
-        setVolume(volume) {
-            if (this.isVolumeLocked()) this.volumeBackup = volume
-            else return this.parent(volume)
-        },
-        lockVolume(newVolume) {
-            if (this.isVolumeLocked())
-                throw new Error('called ig.TrackWebAudio#lockVolume when volume is already locked!')
-            const oldVolume = Math.sqrt(this._volume / this.baseVolume)
-            if (newVolume !== undefined) this.setVolume(newVolume)
-            this.volumeBackup = oldVolume
-        },
-        unlockVolume() {
-            const oldVolume = this.volumeBackup!
-            if (!this.isVolumeLocked())
-                throw new Error("called ig.TrackWebAudio#unlockVolume when volume wasn't locked!")
-            this.volumeBackup = undefined
-            this.setVolume(oldVolume)
-        },
-    })
     ig.BgmTrack.inject({
         copy() {
             const newCopy = this.parent()
             if (newCopy.track) {
-                ;(newCopy.track as ig.TrackWebAudio).volumeBackup = (this.track as ig.TrackWebAudio)?.volumeBackup
+                newCopy.track.volumeLock = this.track?.volumeLock.copy()
             }
             return newCopy
         },
@@ -104,20 +71,20 @@ export function musicFix() {
     ig.Music.inject({
         inbetween(track, volume, fadeIn, volumeMultiplier) {
             this.parent(track, volume, fadeIn, volumeMultiplier)
-            updateLockableVolume(this, track, shouldMuteMusic)
+            updateTrackVolume(this, track)
         },
         _checkCurrentTrackEquality() {
-            updateLockableVolume(this, this.currentTrack?.track, shouldMuteMusic)
+            updateTrackVolume(this, this.currentTrack?.track)
             return this.parent()
         },
         _playTopSong() {
             this.parent()
-            updateLockableVolume(this, this.currentTrack?.track, shouldMuteMusic)
+            updateTrackVolume(this, this.currentTrack?.track)
         },
         onWindowFocusGained() {
             this.parent()
-            updateLockableVolume(this, this.inBetweenTrack?.track, shouldMuteMusic)
-            updateLockableVolume(this, this.currentTrack?.track, shouldMuteMusic)
+            updateTrackVolume(this, this.inBetweenTrack?.track)
+            updateTrackVolume(this, this.currentTrack?.track)
         },
     })
 

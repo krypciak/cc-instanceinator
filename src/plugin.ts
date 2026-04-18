@@ -10,6 +10,7 @@ import { registerOpts } from './options'
 import { initClasses } from './custom-classes'
 import { injectTitleScreenHide } from './title-screen-hide'
 import { injectPerformance } from './performance'
+import { injectFixesPrestart, injectFixesPostload } from './fixes/all'
 
 import './class-id-to-class'
 
@@ -30,6 +31,10 @@ export default class CCInstanceinator implements PluginClass {
         global.instanceinator = window.instanceinator = new Instanceinator()
     }
 
+    postload() {
+        injectFixesPostload()
+    }
+
     async prestart() {
         registerOpts()
         initClasses()
@@ -38,6 +43,7 @@ export default class CCInstanceinator implements PluginClass {
         injectFocus()
         injectTitleScreenHide()
         injectPerformance()
+        injectFixesPrestart()
 
         if (window.crossnode?.options.test) {
             import('./tests')
