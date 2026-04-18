@@ -12,7 +12,7 @@ function microBegin(depth: number, inst: InstanceinatorInstance = instanceinator
 function microEnd(depth: number) {
     Promise.resolve().then(() => {
         const inst = instanceinator.instances[microStack.pop()!]
-        inst.apply()
+        inst?.apply()
 
         if (depth > 0) microEnd(--depth)
     })
