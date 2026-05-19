@@ -144,6 +144,9 @@ declare global {
             postScheduledTasks: (() => void)[]
             nextScheduledTasks: (() => void)[]
         }
+
+        interface InstanceShared {}
+        var shared: InstanceShared
     }
 }
 export function injectInstance() {
@@ -202,4 +205,6 @@ export function injectInstance() {
     })
 
     injectFixesPrestart()
+
+    ig.shared ??= {}
 }

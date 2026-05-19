@@ -53,6 +53,9 @@ function initIgSc(s: InstanceinatorInstance, gameAddons: (() => void)[]) {
     igset('globalSettings')
     igset('terrain')
 
+    /* shared variables across instances */
+    igset('shared')
+
     /* cc-variable-charge-time */
     igset('onChargeTimingsOptionChange')
 
