@@ -5,6 +5,8 @@ export function retile() {
     let displayInsts: InstanceinatorInstance[] = []
     const nonDisplayInsts: InstanceinatorInstance[] = []
     for (const inst of Object.values(instanceinator.instances)) {
+        if (!inst.ig.system?.inputDom) continue
+
         if (inst.display && inst.ig?.system) displayInsts.push(inst)
         else nonDisplayInsts.push(inst)
     }

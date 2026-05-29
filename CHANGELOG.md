@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Fixed
+
+- Fix rare tiling error when instance is not yet initialized
+
 ## [1.1.2] 2026-05-20
 
 ### Added
