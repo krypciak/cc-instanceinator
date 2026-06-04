@@ -7,6 +7,7 @@
 ### Fixed
 
 - Fix rare tiling error when instance is not yet initialized
+- Fix fixes function getting called twice
 
 ## [1.1.2] 2026-05-20
 

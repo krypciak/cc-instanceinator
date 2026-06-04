@@ -204,7 +204,5 @@ export function injectInstance() {
         },
     })
 
-    injectFixesPrestart()
-
     ig.shared ??= {}
 }
