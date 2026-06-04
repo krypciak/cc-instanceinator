@@ -63,7 +63,7 @@ export function musicFixPrestart() {
         copy() {
             const newCopy = this.parent()
             if (newCopy.track) {
-                newCopy.track.volumeLock = this.track?.volumeLock.copy()
+                this.track?.volumeLock.copyInto(newCopy.track.volumeLock)
             }
             return newCopy
         },

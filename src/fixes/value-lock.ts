@@ -39,9 +39,9 @@ export class ValueLock<T> {
         }
     }
 
-    copy(): ValueLock<T> {
-        const lock = new ValueLock(this.lockValue, this.getValue, this.setValue)
-        lock.backupValue = lock.backupValue
-        return lock
+    copyInto(newValueLock: ValueLock<T>) {
+        if (this.isLocked() && !newValueLock.isLocked()) {
+            newValueLock.lock(this.backupValue!)
+        }
     }
 }
