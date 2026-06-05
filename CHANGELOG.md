@@ -9,6 +9,7 @@
 - Fix rare tiling error when instance is not yet initialized
 - Fix fixes function getting called twice
 - Fix music volume lock getVolume and setVolume preserving this context on copy
+- Fix keyup events triggering on all visible instances
 
 ## [1.1.2] 2026-05-20
 
