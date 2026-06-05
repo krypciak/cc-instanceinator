@@ -1,5 +1,6 @@
 import { audioFix } from './audio-fix'
 import { cacheableFix } from './cacheable-fix'
+import { ccloaderMessageFix } from './ccloader-message-fix'
 import { cursorFix } from './cursor-fix'
 import { dialogFix } from './dialog-fix'
 import { imageAtlasFix } from './imageAtlas-fix'
@@ -24,4 +25,5 @@ export function injectFixesPrestart() {
     optionModelFix()
     nwjsFullscreenFix()
     storageFix()
+    ccloaderMessageFix()
 }
