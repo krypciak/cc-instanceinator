@@ -6,7 +6,7 @@ const ObjectKeysT: <K extends string | number | symbol, V>(object: Record<K, V>)
 
 type SetFunc = (name: string, to?: any) => void
 
-function initIgSc(s: InstanceinatorInstance, gameAddons: (() => void)[]) {
+function initIgSc(s: InstanceinatorInstance) {
     const ig: typeof window.ig = {} as any
     const igAny = ig as any
     const igToInit: string[] = []
@@ -63,8 +63,6 @@ function initIgSc(s: InstanceinatorInstance, gameAddons: (() => void)[]) {
     ig.EntityPool.drainAllPools()
 
     ig.ScreenBufferPool = { ...s.ig.ScreenBufferPool, handleList: [], freeBuffers: [] }
-
-    gameAddons.push(...s.ig.game.addons.preUpdate.filter(a => !('classId' in a)).map(a => () => a))
 
     const sc: typeof window.sc = {} as any
     const scAny = sc as any
@@ -231,6 +229,11 @@ function getAddonList(s: InstanceinatorInstance): (() => ig.GameAddon)[] {
     list.push(() => (sc.betaControls = new sc.BetaControls()))
     list.push(() => (ig.langEdit = s.ig.langEdit))
 
+    const nonClassPreUpdateAddons = s.ig.game.addons.preUpdate
+        .filter(a => !('classId' in a))
+        .map(a => () => a) as (() => ig.GameAddon)[]
+    list.push(...nonClassPreUpdateAddons)
+
     return list
 }
 
@@ -300,8 +303,7 @@ export async function copyInstance(
     } else {
         const origIg = instanceinator.id
 
-        const gameAddons: any[] = []
-        const { ig, igset, igToInit, sc, scset, scToInit } = initIgSc(s, gameAddons)
+        const { ig, igset, igToInit, sc, scset, scToInit } = initIgSc(s)
         const { modmanager } = initModManager(s)
         const { nax } = initNax(s)
 

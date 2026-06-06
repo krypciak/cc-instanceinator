@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Fixed
+
+- Fix cc-vim not working on additional instances
+
 ## [1.1.3] 2026-06-05
 
 ### Fixed
