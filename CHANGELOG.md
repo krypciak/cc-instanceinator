@@ -7,6 +7,7 @@
 ### Fixed
 
 - Fix cc-vim not working on additional instances
+- Clear instance unique caches on instance destroy
 - Close sound context on instance destroy
 
 ## [1.1.3] 2026-06-05

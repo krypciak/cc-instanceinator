@@ -121,6 +121,17 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
 
             ig.soundManager?.context?.context?.close()
 
+            for (const clazzName in ig.cacheList) {
+                const record = ig.cacheList[clazzName]
+                for (const cacheKey in record) {
+                    const obj = record[cacheKey]
+                    if (obj?.instanceUnique && obj.cacheKey) {
+                        const con = obj.constructor as ig.CacheableConstructor
+                        con.cache[obj.cacheKey] = null
+                    }
+                }
+            }
+
             // @ts-expect-error
             ig.vimGui?.destroy?.()
         })
