@@ -118,6 +118,8 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
             }
             ig.music?.pause()
             ig.mapSounds?.onReset()
+
+            ig.soundManager?.context?.context?.close()
         })
 
         delete instanceinator.instances[this.id]
