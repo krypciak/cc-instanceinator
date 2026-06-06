@@ -120,6 +120,9 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
             ig.mapSounds?.onReset()
 
             ig.soundManager?.context?.context?.close()
+
+            // @ts-expect-error
+            ig.vimGui?.destroy?.()
         })
 
         delete instanceinator.instances[this.id]
