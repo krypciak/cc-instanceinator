@@ -32,7 +32,12 @@ export class ValueAverageOverTime {
     }
 
     getAverage(): number {
+        if (this.values.length === 0) return 0
         return this.sum / this.values.length
+    }
+
+    hasData(): boolean {
+        return this.values.length > 0
     }
 }
 
@@ -44,16 +49,18 @@ export class FpsLabelDrawClass implements LabelDrawClass {
         if (!instanceinator.displayFps) return y
         const time = performance.now()
 
-        let timeDiff = time - this.lastDrawTime
-        if (this.lastDrawTime == 0) timeDiff = 0
-        this.avg.pushValue(timeDiff)
+        if (this.lastDrawTime != 0) {
+            const timeDiff = time - this.lastDrawTime
+            this.avg.pushValue(timeDiff)
+        }
+        this.lastDrawTime = time
+        if (!this.avg.hasData()) return y
         const fps = 1000 / this.avg.getAverage()
 
         const text = new ig.TextBlock(sc.fontsystem.font, `${fps.round(0)} fps`, {})
 
         text.draw(ig.system.width - text.size.x - 5, y)
         y += text.size.y
-        this.lastDrawTime = time
         return y
     }
 }
