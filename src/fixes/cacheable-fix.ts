@@ -1,3 +1,5 @@
+import { runTask } from '../inst-util'
+
 declare global {
     namespace ig {
         interface Cacheable {
@@ -15,6 +17,26 @@ export function cacheableFix() {
         cleaningCache = false
     }
 
+    function fixRaceConditionWhenMultipleInstancesAccessTheSameLoadable(cached: ig.Loadable) {
+        const inst = instanceinator.instances[instanceinator.id]
+
+        const resource: ig.Resource & { _loadCallback?: ig.Resource.LoadCallback } = {
+            cacheType: cached.cacheType,
+            path: cached.path,
+            load(loadCallback) {
+                if (cached.loaded || cached.failed) loadCallback!(cached.cacheType, cached.path, cached.loaded)
+                else this._loadCallback = loadCallback
+            },
+        }
+        ig.addResource(resource)
+
+        cached.addLoadListener({
+            onLoadableComplete(success) {
+                runTask(inst, () => resource._loadCallback?.(cached.cacheType, cached.path, success))
+            },
+        })
+    }
+
     let ignoreCacheStaticInstantiate = false
     function createCacheStaticInstantiate<T extends ig.Cacheable>(onCachedFound: (clazz: T) => T) {
         function cacheStaticInstantiate(this: ig.Cacheable, ...args: any[]) {
@@ -25,7 +47,7 @@ export function cacheableFix() {
             if (!con.cache) {
                 con.cache = {}
                 const cacheType = con.prototype.cacheType
-                if (!cacheType) throw Error('ig.Cacheable without CacheType!')
+                if (!cacheType) throw new Error('ig.Cacheable without CacheType!')
                 if (ig.cacheList[cacheType] != void 0) throw Error('Duplicated cacheType: ' + cacheType)
                 ig.cacheList[cacheType] = con.cache
             }
@@ -36,10 +58,14 @@ export function cacheableFix() {
 
             if (cacheKey) {
                 this.cacheKey = cacheKey
-                const cached = con.cache[cacheKey]
+                const cached: ig.Loadable = con.cache[cacheKey]
                 if (cached) {
+                    /* changed here */
+                    if (cached.loaded === false && cached._instanceId != instanceinator.id)
+                        fixRaceConditionWhenMultipleInstancesAccessTheSameLoadable(cached)
+
                     ignoreCacheStaticInstantiate = true
-                    const obj = onCachedFound(cached)
+                    const obj = onCachedFound(cached as any)
                     ignoreCacheStaticInstantiate = false
                     obj.increaseRef()
                     return obj
