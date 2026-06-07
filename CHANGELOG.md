@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Export instance utility functions to instanceinator global namespace
+
 ### Fixed
 
 - Fix cc-vim not working on additional instances

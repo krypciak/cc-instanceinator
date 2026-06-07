@@ -1,6 +1,5 @@
 import type {} from 'ccmodmanager/types/gui/gui'
 import { IdLabelDrawClass } from './label-draw'
-import { injectFixesPrestart } from './fixes/all'
 import { filterInstanceObjectsFromArray, runTask, scheduleTask } from './inst-util'
 import { initBuffersOnDrawEnable } from './performance'
 
