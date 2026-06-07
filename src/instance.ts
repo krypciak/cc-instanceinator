@@ -24,6 +24,7 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
     name!: string
     forceDraw!: boolean
     soundPlayCondition!: SoundPlayConditionFunc
+    crossnodeForceWriteImage?: boolean
 
     ig: typeof window.ig
     sc: typeof window.sc
