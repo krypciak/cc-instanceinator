@@ -22,6 +22,6 @@
         "skipLibCheck": true,
         "resolveJsonModule": true,
         "noUncheckedSideEffectImports": true,
-        "allowImportingTsExtensions": true
+        "allowImportingTsExtensions": false
     }
 }
