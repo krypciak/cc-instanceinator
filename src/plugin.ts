@@ -45,10 +45,6 @@ export default class CCInstanceinator implements PluginClass {
         injectPerformance()
         injectFixesPrestart()
 
-        if (window.crossnode?.options.test) {
-            import('./tests')
-        }
-
         new InstanceinatorInstance({ ig, sc, modmanager: window.modmanager, nax: window.nax }, { name: 'base' })
     }
 
