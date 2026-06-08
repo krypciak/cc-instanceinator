@@ -1,33 +1,33 @@
 import type { InstanceinatorInstance } from './instance'
 
-export function scheduleTask<T>(inst: InstanceinatorInstance, task: () => Promise<T> | T): Promise<T> {
-    return new Promise<T>(resolve => {
-        inst.ig.game.scheduledTasks.push(async () => {
-            resolve(await task())
+function scheduleTaskTo<T>(arr: typeof ig.game.scheduledTasks, task: () => Promise<T> | T) {
+    return new Promise<T>((resolve, reject) => {
+        arr.push(() => {
+            try {
+                const result = task()
+                if (result instanceof Promise) {
+                    result.then(resolve, reject)
+                } else {
+                    resolve(result)
+                }
+            } catch (e) {
+                reject(e)
+                throw e
+            }
         })
     })
+}
+
+export function scheduleTask<T>(inst: InstanceinatorInstance, task: () => Promise<T> | T): Promise<T> {
+    return scheduleTaskTo(inst.ig.game.scheduledTasks, task)
 }
 
 export function schedulePostTask<T>(inst: InstanceinatorInstance, task: () => Promise<T> | T): Promise<T> {
-    return new Promise<T>(resolve => {
-        inst.ig.game.postScheduledTasks.push(async () => {
-            resolve(await task())
-        })
-    })
+    return scheduleTaskTo(inst.ig.game.postScheduledTasks, task)
 }
 
 export function scheduleNextTask<T>(inst: InstanceinatorInstance, task: () => Promise<T> | T): Promise<T> {
-    return new Promise<T>(resolve => {
-        inst.ig.game.nextScheduledTasks.push(async () => {
-            resolve(await task())
-        })
-    })
-}
-
-export function scheduleTasks<T>(insts: InstanceinatorInstance[], task: (i: number) => T): Promise<T[]> {
-    return wrap(() => {
-        return Promise.all(insts.map((inst, i) => scheduleTask(inst, () => task(i))))
-    })
+    return scheduleTaskTo(inst.ig.game.nextScheduledTasks, task)
 }
 
 export function wrap<T>(func: () => T): T {
