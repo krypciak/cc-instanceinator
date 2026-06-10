@@ -57,7 +57,7 @@ function initIgSc(s: InstanceinatorInstance) {
     igset('shared')
 
     /* cc-variable-charge-time */
-    igset('onChargeTimingsOptionChange')
+    igset('onChargeTimingsChange')
 
     ig.EntityPool = { ...s.ig.EntityPool }
     ig.EntityPool.drainAllPools()
