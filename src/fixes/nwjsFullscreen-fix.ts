@@ -17,8 +17,16 @@ export function nwjsFullscreenFix() {
         return isFullscreenCache
     }
 
+    let optionModelInitializing = false
     sc.OptionModel.inject({
+        init() {
+            optionModelInitializing = true
+            this.parent()
+            optionModelInitializing = false
+        },
         _setFullscreen() {
+            if (instanceinator.id != 0 && optionModelInitializing) return
+
             if (ig.platform == ig.PLATFORM_TYPES.DESKTOP) {
                 const newValue = this.values.fullscreen
                 localStorage.setItem('IG_FULLSCREEN', `${newValue}`)
