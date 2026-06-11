@@ -8,6 +8,7 @@
 
 - Export instance utility functions to instanceinator global namespace
 - Add tilingOrder config option for InstanceinatorInstance
+- Add noGuiUpdate ig.perf flag
 
 ### Fixed
 

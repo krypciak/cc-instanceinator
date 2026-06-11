@@ -1,3 +1,8 @@
+export function injectPerformance() {
+    lazyBuffers()
+    additionalPerfValues()
+}
+
 declare global {
     namespace ig {
         interface ScreenBlur {
@@ -8,7 +13,7 @@ declare global {
         }
     }
 }
-export function injectPerformance() {
+function lazyBuffers() {
     ig.ScreenBlur.inject({
         initBuffers() {
             if (this.buffer) return
@@ -87,4 +92,21 @@ export function injectPerformance() {
 export function initBuffersOnDrawEnable() {
     ig.screenBlur?.initBuffers()
     ig.light?.initBuffers()
+}
+
+declare global {
+    namespace ig {
+        interface Perf {
+            noGuiUpdate?: boolean
+        }
+    }
+}
+
+function additionalPerfValues() {
+    ig.Gui.inject({
+        onDeferredUpdate() {
+            if (ig.perf.noGuiUpdate) return
+            return this.parent()
+        },
+    })
 }
