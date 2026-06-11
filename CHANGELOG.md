@@ -7,6 +7,7 @@
 ### Added
 
 - Export instance utility functions to instanceinator global namespace
+- Add tilingOrder config option for InstanceinatorInstance
 
 ### Fixed
 

@@ -10,6 +10,7 @@ export interface InstanceinatorInstanceConfig {
     display?: boolean
     forceDraw?: boolean
     soundPlayCondition?: SoundPlayConditionFunc
+    tilingOrder?: number
 }
 export interface InstanceinatorInstanceGlobals {
     ig: typeof window.ig
@@ -24,6 +25,8 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
     name!: string
     forceDraw!: boolean
     soundPlayCondition!: SoundPlayConditionFunc
+    tilingOrder!: number
+
     crossnodeForceWriteImage?: boolean
 
     ig: typeof window.ig
@@ -55,11 +58,13 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
         display = true,
         forceDraw = false,
         soundPlayCondition = () => this.display,
+        tilingOrder = 0,
     }: InstanceinatorInstanceConfig) {
         this.name = name
         this._display = display
         this.forceDraw = forceDraw
         this.soundPlayCondition = soundPlayCondition
+        this.tilingOrder = tilingOrder
     }
 
     private _display!: boolean

@@ -33,13 +33,16 @@ export function retile() {
         })
     }
 
-    displayInsts = displayInsts.sort((a, b) => a.id - b.id)
+    displayInsts = displayInsts.sort((a, b) => {
+        if (a.tilingOrder == b.tilingOrder) return a.id - b.id
+        return (a.tilingOrder ?? 0) - (b.tilingOrder ?? 0)
+    })
 
     const ws = document.documentElement.clientWidth
     const hs = document.documentElement.clientHeight
     function fitRectangles() {
         let bestWi = 0
-        let bestGrid = [0, 0]
+        let bestGrid = { width: 0, height: 0 }
 
         const aspectRatioRev = 320 / 568
         for (let nx = 1; nx <= Math.ceil(displayInsts.length); nx++) {
@@ -48,7 +51,7 @@ export function retile() {
 
             if (wi > bestWi) {
                 bestWi = wi
-                bestGrid = [nx, ny]
+                bestGrid = { width: nx, height: ny }
             }
         }
 
@@ -60,29 +63,30 @@ export function retile() {
     }
 
     const { grid, width, height } = fitRectangles()
-    const offsetX = (ws - grid[0] * width) / 2
-    const offsetY = (hs - grid[1] * height) / 2
+    const offsetX = (ws - grid.width * width) / 2
+    const offsetY = (hs - grid.height * height) / 2
 
-    let itemI = 0
-    for (let column = 0; column < grid[1]; column++) {
-        for (let row = 0; row < grid[0]; row++) {
-            const inst = displayInsts[itemI]
-            if (!inst) break
-            const div = inst.ig.system?.inputDom
-            if (!div) continue
+    function setDivPositions() {
+        let itemI = 0
+        for (let column = 0; column < grid.height; column++) {
+            for (let row = 0; row < grid.width; row++) {
+                if (itemI >= displayInsts.length) return
+                const inst = displayInsts[itemI++]
+                const div = inst.ig.system.inputDom
 
-            div.style.position = 'absolute'
-            div.style.left = `${row * width + offsetX}px`
-            div.style.top = `${column * height + offsetY}px`
-            div.style.width = `${width}px`
-            div.style.height = `${height}px`
+                div.style.position = 'absolute'
+                div.style.left = `${row * width + offsetX}px`
+                div.style.top = `${column * height + offsetY}px`
+                div.style.width = `${width}px`
+                div.style.height = `${height}px`
 
-            inst.ig.system.screenWidth = width
-            inst.ig.system.screenHeight = height
-
-            itemI++
+                inst.ig.system.screenWidth = width
+                inst.ig.system.screenHeight = height
+            }
         }
     }
+    setDivPositions()
+
     callSetDisplaySize()
 }
 
