@@ -137,7 +137,7 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
                 }
             }
 
-            // @ts-expect-error
+            // @ts-ignore
             ig.vimGui?.destroy?.()
         })
 
