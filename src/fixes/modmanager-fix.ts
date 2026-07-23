@@ -1,4 +1,4 @@
-import { runTask, } from '../inst-util'
+import { runTask } from '../inst-util'
 import { microWrap } from './micro-wrap'
 
 export function modmanagerFix() {
