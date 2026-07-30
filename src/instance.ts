@@ -225,5 +225,18 @@ export function injectInstance() {
         },
     })
 
+    ig.JsonLoadable.inject({
+        onJsonLoaded(json) {
+            const inst = instanceinator.instances[this._instanceId]
+            if (!inst) return this.parent(json)
+            runTask(inst, () => this.parent(json))
+        },
+        onJsonError() {
+            const inst = instanceinator.instances[this._instanceId]
+            if (!inst) return this.parent()
+            runTask(inst, () => this.parent())
+        },
+    })
+
     ig.shared ??= {}
 }

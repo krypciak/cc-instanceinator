@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Fixed
+
+- Fix crash when entering a map that immediately requires a loaded ig.JsonLoadable
+
 ## [1.1.4] 2026-07-02
 
 ### Added
