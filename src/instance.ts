@@ -225,6 +225,20 @@ export function injectInstance() {
         },
     })
 
+    ig.Loadable.inject({
+        loadingFinished(success) {
+            if (this._instanceId == instanceinator.id) {
+                return this.parent(success)
+            }
+            if (success) this.loaded = true
+            else this.failed = true
+            const inst = instanceinator.instances[this._instanceId]
+            if (!inst) return
+            runTask(inst, () => {
+                this.loadingFinished(success)
+            })
+        },
+    })
     ig.JsonLoadable.inject({
         onJsonLoaded(json) {
             const inst = instanceinator.instances[this._instanceId]
