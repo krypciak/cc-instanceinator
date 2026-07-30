@@ -51,4 +51,13 @@ export function injectFocus() {
             replace.call(this, event)
         },
     })
+
+    window.modmanager?.gui?.InputField?.inject({
+        processInput(...args) {
+            const inst = instanceinator.instances[this._instanceId]
+            if (!inst?.display) return
+            if (inst.ig.input.isMouseOutOfInputDom) return
+            return runTask(inst, () => this.parent(...args))
+        },
+    })
 }

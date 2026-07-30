@@ -7,6 +7,7 @@
 ### Fixed
 
 - Fix crash when entering a map that immediately requires a loaded ig.JsonLoadable
+- Fix modmanager.gui.InputField not respecting instance focus
 
 ## [1.1.4] 2026-07-02
 
