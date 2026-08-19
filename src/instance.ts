@@ -203,6 +203,7 @@ export function injectInstance() {
         },
         draw() {
             this.parent()
+            if (ig.isTakingScreenshot) return
             const inst = instanceinator.instances[instanceinator.id]
             if (!inst) return
             inst.drawLabels()

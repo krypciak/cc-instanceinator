@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Changed
+
+- Don't display instance labels while taking a screenshot with cc-map-screenshot
+
 ## [1.1.5] 2026-08-01
 
 ### Fixed

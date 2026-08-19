@@ -1,5 +1,6 @@
 import 'ultimate-crosscode-typedefs'
 import type { Mod } from 'ultimate-crosscode-typedefs/modloader/mod'
+import 'cc-map-screenshot/src/plugin'
 
 export type Mod1 = Mod & {
     isCCModPacked: boolean
