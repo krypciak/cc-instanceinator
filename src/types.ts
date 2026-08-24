@@ -1,9 +1,9 @@
 import 'ultimate-crosscode-typedefs'
 import type { Mod } from 'ultimate-crosscode-typedefs/modloader/mod'
-import 'cc-map-screenshot/src/plugin'
+import type {} from 'cc-map-screenshot/src/plugin'
+import type {} from 'crossnode/crossnode.d.ts'
 
 export type Mod1 = Mod & {
-    isCCModPacked: boolean
     findAllAssets?(): void /* only there for ccl2, used to set isCCL3 */
 } & (
         | {
