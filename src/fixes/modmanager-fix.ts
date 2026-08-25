@@ -14,9 +14,14 @@ export function modmanagerFix() {
     })
     modmanager.gui.Menu.inject({
         showModInstallDialog: replace,
+        exitMenu() {
+            return microWrap(() => this.parent())
+        },
     })
     modmanager.gui.ListEntry.inject({
         updateIcon: replace,
+    })
+    modmanager.gui.ModListEntry.inject({
         tryEnableMod(mod) {
             return microWrap(() => this.parent(mod))
         },
@@ -25,4 +30,15 @@ export function modmanagerFix() {
         closeMenu: replace,
         refreshPage: replace,
     })
+
+    for (const key of [
+        'showEnableModDialog',
+        'checkCanEnableMod',
+        'installModsFunc',
+        'showModUninstallDialog',
+    ] as const) {
+        const orig = modmanager.gui.ModInstallDialogs[key] as (...args: any[]) => any
+        modmanager.gui.ModInstallDialogs[key] = (...args: any[]) =>
+            microWrap(() => orig.call(modmanager.gui.ModInstallDialogs, ...args))
+    }
 }
