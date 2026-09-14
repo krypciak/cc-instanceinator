@@ -82,7 +82,7 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
         this.ig.system.inputDom.style.display = displayType
 
         runTask(this, () => {
-            if (ig.perf.draw) initBuffersOnDrawEnable()
+            if (ig.perf.draw) this.initDrawBuffers()
 
             if (ig.music) {
                 if (value) {
@@ -93,6 +93,10 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
             }
             ig.soundManager?.updateMasterVolumeLock()
         })
+    }
+
+    initDrawBuffers() {
+        runTask(this, () => initBuffersOnDrawEnable())
     }
 
     apply() {
