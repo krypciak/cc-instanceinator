@@ -228,11 +228,6 @@ function getAddonList(s: InstanceinatorInstance): (() => ig.GameAddon)[] {
     list.push(() => (sc.betaControls = new sc.BetaControls()))
     list.push(() => (ig.langEdit = s.ig.langEdit))
 
-    const nonClassPreUpdateAddons = s.ig.game.addons.preUpdate
-        .filter(a => !('classId' in a))
-        .map(a => () => a) as (() => ig.GameAddon)[]
-    list.push(...nonClassPreUpdateAddons)
-
     return list
 }
 
@@ -318,8 +313,28 @@ export async function copyInstance(
             ns.display = !!config.display
 
             ig.initGameAddons = () => {
-                const addons = getAddonList(s)
-                return addons.map(a => a())
+                const addonCreateFunctions = getAddonList(s)
+                const addons = addonCreateFunctions.map(a => a())
+
+                const nonCustomClassIds = new Set([
+                    ...addons.map(a => a.classId),
+                    ig.Gui.classId,
+                    ig.Weather.classId,
+                    sc.FontSystem.classId,
+                    sc.GameModel.classId,
+                    sc.QuestModel.classId,
+                    sc.CommonEvents.classId,
+                ])
+                const customAddons = s.ig.game.addons.all.filter(a => {
+                    if (!('classId' in a)) return true
+                    if (a.classId === undefined) return true
+                    if (nonCustomClassIds.has(a.classId)) return false
+                    return true
+                })
+
+                addons.push(...customAddons)
+
+                return addons
             }
 
             if (preLoad) preLoad(ns)
