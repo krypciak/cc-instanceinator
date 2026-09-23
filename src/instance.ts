@@ -243,6 +243,16 @@ export function injectInstance() {
                 this.loadingFinished(success)
             })
         },
+        addLoadListener(listener) {
+            const instId = instanceinator.id
+            return this.parent({
+                onLoadableComplete(success, loadable) {
+                    const inst = instanceinator.instances[instId]
+                    if (!inst) return listener.onLoadableComplete(success, loadable)
+                    runTask(inst, () => listener.onLoadableComplete(success, loadable))
+                },
+            })
+        },
     })
     ig.JsonLoadable.inject({
         onJsonLoaded(json) {

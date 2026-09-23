@@ -7,6 +7,7 @@
 ### Fixed
 
 - Copy custom game addons from mods to new instances
+- Fix onLoadableComplete leaking to other instances
 
 ## [1.1.6] 2026-08-28
 
