@@ -5,7 +5,17 @@ import { copyInstance, type InstanceinatorCopyInstanceConfig } from './instance-
 import { FpsLabelDrawClass, IdLabelDrawClass, type LabelDrawClass } from './label-draw'
 import { updateMusicInstanceId } from './fixes/music-fix'
 import { classes } from './custom-classes'
-import { wrap, scheduleNextTask, schedulePostTask, scheduleTask, runTask, runTasks, wait } from './inst-util'
+import {
+    wrap,
+    scheduleNextTask,
+    schedulePostTask,
+    scheduleTask,
+    runTask,
+    runTasks,
+    wait,
+    updateLoop,
+    waitFrames,
+} from './inst-util'
 
 declare global {
     var instanceinator: Instanceinator
@@ -83,4 +93,6 @@ export class Instanceinator {
     runTask = runTask
     runTasks = runTasks
     wait = wait
+    updateLoop = updateLoop
+    waitFrames = waitFrames
 }

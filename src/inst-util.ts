@@ -71,6 +71,43 @@ export function wait(inst: InstanceinatorInstance, seconds: number): Promise<voi
     })
 }
 
+export function updateLoop(
+    waitingInst: InstanceinatorInstance,
+    inst: InstanceinatorInstance,
+    maxFrames: number,
+    func: (frame: number) => boolean | undefined | void | Promise<boolean | undefined | void>
+) {
+    return new Promise<void>((res, rej) => {
+        let frames = 0
+        const loop = async () => {
+            if (inst.destroyed) {
+                res()
+                return
+            }
+            try {
+                const done = await runTask(inst, () => func(frames))
+                if (done || ++frames >= maxFrames) {
+                    res()
+                } else {
+                    if (inst.destroyed) {
+                        res()
+                        return
+                    }
+                    scheduleTask(waitingInst, loop)
+                }
+            } catch (e) {
+                rej(e)
+                throw e
+            }
+        }
+        runTask(waitingInst, loop)
+    })
+}
+
+export async function waitFrames(waitingInst: InstanceinatorInstance, inst: InstanceinatorInstance, count: number) {
+    await updateLoop(waitingInst, inst, count + 1, () => {})
+}
+
 export function filterInstanceObjectsFromArray<T extends object>(classes: T[], instanceIdToRemove: number): T[] {
     return classes.filter(c => !('_instanceId' in c) || c._instanceId != instanceIdToRemove)
 }
