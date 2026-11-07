@@ -8,6 +8,10 @@
 
 - Add instance label for displaying map name (disabled by default)
 
+### Fixed
+
+- Fix sc.savePreset missing on copied instances
+
 ## [1.1.7] 2026-09-23
 
 ### Fixed

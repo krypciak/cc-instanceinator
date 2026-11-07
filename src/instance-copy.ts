@@ -214,7 +214,7 @@ function getAddonList(s: InstanceinatorInstance): (() => ig.GameAddon)[] {
     })
     list.push(() => (sc.bounceSwitchGroups = new sc.BounceSwitchGroups()))
     list.push(() => (sc.inputForcer = new sc.InputForcer()))
-    list.push(() => s.sc.savePreset)
+    list.push(() => (sc.savePreset = s.sc.savePreset))
     list.push(() => (sc.quests = new instanceinator.classes.QuestModel()))
     list.push(() => (sc.commonEvents = new instanceinator.classes.CommonEvents()))
     list.push(() => (sc.voiceActing = s.sc.voiceActing))
