@@ -64,3 +64,20 @@ export class FpsLabelDrawClass implements LabelDrawClass {
         return y
     }
 }
+
+export class MapNameDrawClass implements LabelDrawClass {
+    draw(y: number) {
+        if (!instanceinator.displayMapName) return y
+
+        const isInGame = ig.game.maps.length != 0
+        if (!isInGame) return y
+
+        const mapName = ig.game.mapName
+
+        const text = new ig.TextBlock(sc.fontsystem.font, `${mapName}`, {})
+
+        text.draw(ig.system.width - text.size.x - 5, y)
+        y += text.size.y
+        return y
+    }
+}

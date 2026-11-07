@@ -2,7 +2,7 @@ import type {} from 'crossnode/crossnode.d.ts'
 import { InstanceinatorInstance } from './instance'
 import { retile } from './tiler'
 import { copyInstance, type InstanceinatorCopyInstanceConfig } from './instance-copy'
-import { FpsLabelDrawClass, IdLabelDrawClass, type LabelDrawClass } from './label-draw'
+import { FpsLabelDrawClass, IdLabelDrawClass, MapNameDrawClass, type LabelDrawClass } from './label-draw'
 import { updateMusicInstanceId } from './fixes/music-fix'
 import { classes } from './custom-classes'
 import {
@@ -32,11 +32,13 @@ export class Instanceinator {
     currentInstanceFocus: number = 0
     idCounter: number = 0
     displayId: boolean = false
+    displayMapName: boolean = false
     displayFps: boolean = false
     cachedInstances: Record<string, Promise<InstanceinatorInstance>[]> = {}
 
     labelDrawClasses: (new (instance: InstanceinatorInstance) => LabelDrawClass)[] = [
         IdLabelDrawClass,
+        MapNameDrawClass,
         FpsLabelDrawClass,
     ]
 

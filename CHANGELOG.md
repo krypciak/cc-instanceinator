@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Added
+
+- Add instance label for displaying map name (disabled by default)
+
 ## [1.1.7] 2026-09-23
 
 ### Fixed

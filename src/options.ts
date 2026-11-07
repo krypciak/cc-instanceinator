@@ -21,6 +21,15 @@ export function registerOpts() {
                             instanceinator.displayId = Opts.displayId
                         },
                     },
+                    displayMapName: {
+                        type: 'CHECKBOX',
+                        init: false,
+                        name: 'Display map name',
+                        description: 'Display instance current map name (ig.game.mapName)',
+                        changeEvent() {
+                            instanceinator.displayMapName = Opts.displayMapName
+                        },
+                    },
                     displayFps: {
                         type: 'CHECKBOX',
                         init: false,
@@ -42,7 +51,8 @@ export function registerOpts() {
         },
         opts
     )
-    instanceinator.displayFps = Opts.displayFps
     instanceinator.displayId = Opts.displayId
+    instanceinator.displayMapName = Opts.displayMapName
+    instanceinator.displayFps = Opts.displayFps
     return opts
 }
