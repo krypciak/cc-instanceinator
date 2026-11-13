@@ -1,4 +1,3 @@
-import type {} from 'crossnode/crossnode.d.ts'
 import { InstanceinatorInstance } from './instance'
 import { retile } from './tiler'
 import { copyInstance, type InstanceinatorCopyInstanceConfig } from './instance-copy'

@@ -1,7 +1,7 @@
 import 'ultimate-crosscode-typedefs'
 import type { Mod } from 'ultimate-crosscode-typedefs/modloader/mod'
-import type {} from 'cc-map-screenshot/src/plugin'
-import type {} from 'crossnode/crossnode.d.ts'
+import type {} from 'cc-map-screenshot/src/screenshot-types'
+import type {} from 'crossnode/src/types'
 import type {} from 'nax-ccuilib/src/plugin'
 
 export type Mod1 = Mod & {
