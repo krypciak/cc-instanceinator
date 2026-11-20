@@ -7,7 +7,7 @@
         "watch": "npx esbuild --target=es2018 --format=esm --platform=node --bundle --sourcemap=inline --watch --outfile=plugin.js src/plugin.ts",
         "build": "npx esbuild --target=es2018 --format=esm --platform=node --bundle --outfile=plugin.js --minify-syntax --minify-whitespace src/plugin.ts",
         "pack": "bun pack.ts",
-        "format": "oxfmt"
+        "format": "bun fmt"
     },
     "dependencies": {
         "@types/chrome": "^0.2.9",
@@ -24,7 +24,6 @@
         "esbuild": "^0.28.2",
         "fflate": "^0.8.3",
         "nax-ccuilib": "github:krypciak/nax-ccuilib",
-        "oxfmt": "^0.60.0",
         "typescript": "^6.0.3"
     }
 }
