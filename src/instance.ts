@@ -134,7 +134,7 @@ export class InstanceinatorInstance implements InstanceinatorInstanceGlobals {
                 const record = ig.cacheList[clazzName]
                 for (const cacheKey in record) {
                     const obj = record[cacheKey]
-                    if (obj?.instanceUnique && obj.cacheKey) {
+                    if (obj?.instanceUnique && obj.cacheKey && obj._instanceId == this.id) {
                         const con = obj.constructor as ig.CacheableConstructor
                         con.cache[obj.cacheKey] = null
                     }

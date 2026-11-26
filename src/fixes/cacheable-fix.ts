@@ -9,14 +9,6 @@ declare global {
 }
 
 export function cacheableFix() {
-    let cleaningCache = false
-    const orig = ig.cleanCache
-    ig.cleanCache = function (...args) {
-        cleaningCache = true
-        orig(...args)
-        cleaningCache = false
-    }
-
     function fixRaceConditionWhenMultipleInstancesAccessTheSameLoadable(cached: ig.Loadable) {
         const inst = instanceinator.instances[instanceinator.id]
 
@@ -82,24 +74,6 @@ export function cacheableFix() {
             cached.increaseRef()
             return cached
         }),
-        init() {
-            if (this.cacheKey) this.constructor.cache[this.cacheKey] = this
-            this.increaseRef()
-        },
-        increaseRef() {
-            this.referenceCount++
-            if (this.cacheKey) this.emptyMapChangeCount = 0
-        },
-        decreaseRef() {
-            this.referenceCount--
-            if (this.referenceCount < 0)
-                throw Error("Call to decreaseRef() results in negative count! Key: '" + this.cacheKey + "'")
-
-            if (this.referenceCount == 0 && (!this.cacheKey || cleaningCache)) {
-                this.onCacheCleared?.()
-                if (this.cacheKey) this.constructor.cache[this.cacheKey] = null
-            }
-        },
     })
 
     ig.WeatherInstance.inject({ instanceUnique: true })

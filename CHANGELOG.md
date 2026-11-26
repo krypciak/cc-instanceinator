@@ -3,6 +3,11 @@
 # Change Log
 
 ## [Unreleased]
+
+### Fixed
+
+- On instance destroy only clear cache of objects owned by the instance and not all objects
+
 ## [1.1.8] 2026-11-09
 
 ### Added
